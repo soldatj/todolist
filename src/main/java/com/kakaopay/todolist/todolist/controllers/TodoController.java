@@ -1,9 +1,11 @@
 package com.kakaopay.todolist.todolist.controllers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kakaopay.todolist.todolist.domain.Result;
 import com.kakaopay.todolist.todolist.domain.Todo;
+import com.kakaopay.todolist.todolist.services.TodoService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,34 +27,81 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/todo")
 @Slf4j
 public class TodoController {
+	private TodoService todoService;
+	
+	@Autowired
+	public TodoController(TodoService todoService) {
+		this.todoService = todoService;
+	}
 	
 	@GetMapping("/{id}")
-	public Result<Todo> find(@PathVariable String id) {
+	public Result<Todo> find(@PathVariable Long id) {
 		log.info("find : " + id);
-		return new Result<Todo>();
+		
+		Result<Todo> result = new Result<>();
+		Todo todo = todoService.find(id);
+		if(todo == null) {
+			result.setErrorCode(HttpStatus.NOT_FOUND.value());
+			result.setErrorMessage("Not found.");
+		}else {
+			result.setResult(todo);
+		}
+		
+		return result;
 	}
 	
 	@GetMapping
-	public Result<Page<Todo>> findAll(Pageable pageable) {
+	public Result<Page<Todo>> findAll(@PageableDefault(size=5, sort="id",direction = Sort.Direction.DESC) Pageable pageable) {
 		log.info("findAll");
-		return new Result<Page<Todo>>();
+		
+		Result<Page<Todo>> result = new Result<>();
+		Page<Todo> page = todoService.findAll(pageable);
+		if(page == null) {
+			result.setErrorCode(HttpStatus.NOT_FOUND.value());
+			result.setErrorMessage("Not found.");
+		}else {
+			result.setResult(page);
+		}
+		
+		return result;
 	}
 	
 	@PostMapping
-	public Result<String> register(@RequestBody Todo newTodo) {
+	public Result<Long> register(@RequestBody Todo newTodo) {
 		log.info("register : " + newTodo);
-		return new Result<String>();
+		
+		Result<Long> result = new Result<>();
+		Todo todo = todoService.register(newTodo);
+		if(todo == null) {
+			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
+			result.setErrorMessage("Already Exists.");
+		}else {
+			result.setResult(todo.getId());
+		}
+		
+		return result;
 	}
 	
 	@PutMapping
-	public Result<String> modify(@RequestBody Todo newTodo) {
+	public Result<Long> modify(@RequestBody Todo newTodo) {
 		log.info("modify : " + newTodo);
-		return new Result<String>();
+		
+		Result<Long> result = new Result<>();
+		Todo todo = todoService.register(newTodo);
+		if(todo == null) {
+			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
+			result.setErrorMessage("Not Found.");
+		}else {
+			result.setResult(todo.getId());
+		}
+		
+		return result;
 	}
 	
-	@DeleteMapping
-	public Result<String> remove(@PathVariable String id) {
+	@DeleteMapping("/{id}")
+	public Result<Long> remove(@PathVariable Long id) {
 		log.info("remove : " + id);
-		return new Result<String>();
+		todoService.remove(id);
+		return new Result<Long>();
 	}
 }

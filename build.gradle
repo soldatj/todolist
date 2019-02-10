@@ -34,20 +34,3 @@ dependencies {
     compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.8.0'
     compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.8.0'
 }
-
-buildscript {  
-    repositories { jcenter() }
-    dependencies {
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:1.3.0.RELEASE"
-        classpath 'org.springframework:springloaded:1.2.4.RELEASE'
-    }
-}
-
-apply plugin: 'idea'
-
-idea {  
-    module {
-        inheritOutputDirs = false
-        outputDir = file("$buildDir/classes/main/")
-    }
-}

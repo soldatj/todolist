@@ -2,15 +2,22 @@ package com.kakaopay.todolist.todolist.domain;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -25,14 +32,24 @@ import lombok.ToString;
 @ToString
 public class Todo {
 	@Id
-	private String id;
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column
+	private Long id;
 	
+	@NonNull
+	@Column
 	private String Content;
 	
-	private String compYn;
+	@Column
+	private String compYn = "N";
 	
-	private String insDtm;
+	@NonNull
+	@CreationTimestamp
+	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+	private Date insDtm;
 	
+	@UpdateTimestamp
+	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
 	private Date updDtm;
 	
 }
