@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.kakaopay.todolist.todolist.domain.RefTodo;
 import com.kakaopay.todolist.todolist.domain.Todo;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -26,7 +27,7 @@ public class TodoServiceTest {
 	private Todo setUpTodo = null;
 	
 	@Before
-	public void setup() throws Exception{
+	public void setUpClass() throws Exception{
 		Todo todo = new Todo();
 		todo.setContent("호텔 예약하기");
 		todo.setCompYn("N");
@@ -108,16 +109,18 @@ public class TodoServiceTest {
 		Todo todo = new Todo();
 		todo.setContent("호텔 예약하기");
 		
-		Todo refTodo1 = new Todo();
-		refTodo1.setId(4l);
-		Todo refTodo2 = new Todo();
-		refTodo2.setId(3l);
+		RefTodo refTodo1 = new RefTodo();
+		refTodo1.setId(1l);
+		refTodo1.setRefId(2l);
+		RefTodo refTodo2 = new RefTodo();
+//		refTodo1.setId(2l);
+		refTodo2.setRefId(3l);
 		
-		ArrayList<Todo> refTodoList = new ArrayList<Todo>();
-		refTodoList.add(refTodo1);
-		refTodoList.add(refTodo2);
+		ArrayList<RefTodo> refTodoList = new ArrayList<RefTodo>();
+//		refTodoList.add(refTodo1);
+//		refTodoList.add(refTodo2);
 		
-		todo.setRefTodoList(refTodoList);
+//		todo.setRefTodoList(refTodoList);
 		
 		Todo result = todoService.register(todo);
 		
@@ -125,12 +128,14 @@ public class TodoServiceTest {
 		assertThat(result).isNotNull();
 		assertThat(result.getId()).isNotNull();
 		
-		List<Todo> list = result.getRefTodoList();
+		List<RefTodo> list = result.getRefTodoList();
 		list.size();
 		
-		Page<Todo> resultSize101 = todoService.findAll(PageRequest.of(0, 10));
+		Todo resultSize101 = todoService.find(result.getId());
 		
-		resultSize101.getSize();
+		System.out.println(resultSize101);
+		
+		
 	}
 	
 	@Test

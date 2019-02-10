@@ -2,7 +2,11 @@ package com.kakaopay.todolist.todolist.domain;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
@@ -24,20 +28,16 @@ import lombok.ToString;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-@IdClass(RefTodoPk.class)
 public class RefTodo {
 	@Id
-	@ManyToOne
-	@JoinColumn(name="id", nullable=true)
-	private Long id;
+    @GeneratedValue
+    private Long id;
+	
+//	@ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "id")
+    @Column
+	private Long todoId;
 	 
-	@Id
-	@ManyToOne
-	@JoinColumn(name="refId", nullable=true)
-	private Long refId;
-}
-
-class RefTodoPk implements Serializable{
-	private Long id;
+	@Column
 	private Long refId;
 }

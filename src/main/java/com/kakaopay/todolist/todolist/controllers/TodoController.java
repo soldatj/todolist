@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kakaopay.todolist.todolist.domain.Request;
 import com.kakaopay.todolist.todolist.domain.Result;
 import com.kakaopay.todolist.todolist.domain.Todo;
 import com.kakaopay.todolist.todolist.services.TodoService;
@@ -72,6 +73,23 @@ public class TodoController {
 		
 		Result<Long> result = new Result<>();
 		Todo todo = todoService.register(newTodo);
+		if(todo == null) {
+			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
+			result.setErrorMessage("Already Exists.");
+		}else {
+			result.setResult(todo.getId());
+		}
+		
+		return result;
+	}
+	
+	@PostMapping("/Todo")
+	public Result<Long> registerTodo(@RequestBody Request request) {
+		log.info("register : " + request);
+		
+		
+		Result<Long> result = new Result<>();
+		Todo todo = todoService.register(request.getTodo());
 		if(todo == null) {
 			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
 			result.setErrorMessage("Already Exists.");
