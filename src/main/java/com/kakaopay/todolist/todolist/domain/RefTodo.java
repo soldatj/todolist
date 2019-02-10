@@ -1,17 +1,12 @@
 package com.kakaopay.todolist.todolist.domain;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -28,37 +23,23 @@ import lombok.ToString;
 
 @Data
 @Entity
-@Table(name="Todo")
+@Table(name="RefTodo")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-public class Todo {
+@IdClass(RefTodoPk.class)
+public class RefTodo {
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column
 	private Long id;
 	
-	@NonNull
+	@Id
 	@Column
-	private String Content;
+	private Long refId;
 	
-	@Column
-	private String compYn = "N";
-	
-//	@OneToMany(cascade= {CascadeType.ALL})
-//	@JoinColumn(name="RefTodo", insertable = true)
-//	private List<RefTodo> refTodoList;
-	
-	
-	@OneToMany
-	@JoinTable(name="RefTodo",
-		joinColumns = @JoinColumn(name = "id"),
-		inverseJoinColumns = @JoinColumn(name = "ref_id"))
-	private List<Todo> refTodoList = new ArrayList<Todo>();
-		
 	@NonNull
 	@CreationTimestamp
 	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
@@ -67,5 +48,10 @@ public class Todo {
 	@UpdateTimestamp
 	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
 	private Date updDtm;
+}
+
+class RefTodoPk implements Serializable{
+	private Long id;
 	
+	private Long refId;
 }
