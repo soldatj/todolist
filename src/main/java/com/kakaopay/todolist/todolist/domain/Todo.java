@@ -56,7 +56,7 @@ public class Todo {
 	@OneToMany
 	@JoinTable(name="RefTodo",
 		joinColumns = @JoinColumn(name = "id"),
-		inverseJoinColumns = @JoinColumn(name = "ref_id"))
+		inverseJoinColumns = @JoinColumn(name = "refId"))
 	private List<Todo> refTodoList = new ArrayList<Todo>();
 		
 	@NonNull
