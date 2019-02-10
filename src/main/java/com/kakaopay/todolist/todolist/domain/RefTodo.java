@@ -4,13 +4,8 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -28,16 +23,18 @@ import lombok.ToString;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
+@IdClass(RefTodoPk.class)
 public class RefTodo {
 	@Id
-    @GeneratedValue
-    private Long id;
-	
-//	@ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "id")
-    @Column
-	private Long todoId;
-	 
 	@Column
+	private Long id;
+	 
+	@Id
+	@Column
+	private Long refId;
+}
+
+class RefTodoPk implements Serializable{
+	private Long id;
 	private Long refId;
 }

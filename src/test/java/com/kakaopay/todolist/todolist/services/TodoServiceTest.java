@@ -128,9 +128,6 @@ public class TodoServiceTest {
 		assertThat(result).isNotNull();
 		assertThat(result.getId()).isNotNull();
 		
-		List<RefTodo> list = result.getRefTodoList();
-		list.size();
-		
 		Todo resultSize101 = todoService.find(result.getId());
 		
 		System.out.println(resultSize101);

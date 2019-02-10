@@ -43,7 +43,7 @@ public class TodoController {
 		Todo todo = todoService.find(id);
 		if(todo == null) {
 			result.setErrorCode(HttpStatus.NOT_FOUND.value());
-			result.setErrorMessage("Not found.");
+			result.setErrorMessage("Not found");
 		}else {
 			result.setResult(todo);
 		}
@@ -52,14 +52,14 @@ public class TodoController {
 	}
 	
 	@GetMapping
-	public Result<Page<Todo>> findAll(@PageableDefault(size=5, sort="id",direction = Sort.Direction.DESC) Pageable pageable) {
+	public Result<Page<Todo>> findAll(@PageableDefault(size=10, sort="id",direction = Sort.Direction.DESC) Pageable pageable) {
 		log.info("findAll");
 		
 		Result<Page<Todo>> result = new Result<>();
 		Page<Todo> page = todoService.findAll(pageable);
 		if(page == null) {
 			result.setErrorCode(HttpStatus.NOT_FOUND.value());
-			result.setErrorMessage("Not found.");
+			result.setErrorMessage("Not found");
 		}else {
 			result.setResult(page);
 		}
@@ -68,31 +68,15 @@ public class TodoController {
 	}
 	
 	@PostMapping
-	public Result<Long> register(@RequestBody Todo newTodo) {
-		log.info("register : " + newTodo);
-		
-		Result<Long> result = new Result<>();
-		Todo todo = todoService.register(newTodo);
-		if(todo == null) {
-			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
-			result.setErrorMessage("Already Exists.");
-		}else {
-			result.setResult(todo.getId());
-		}
-		
-		return result;
-	}
-	
-	@PostMapping("/Todo")
-	public Result<Long> registerTodo(@RequestBody Request request) {
+	public Result<Long> register(@RequestBody Request request) {
 		log.info("register : " + request);
 		
 		
-		Result<Long> result = new Result<>();
+		Result<Long> result = new Result<Long>();
 		Todo todo = todoService.register(request.getTodo());
 		if(todo == null) {
 			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
-			result.setErrorMessage("Already Exists.");
+			result.setErrorMessage("Already Exists");
 		}else {
 			result.setResult(todo.getId());
 		}
@@ -101,14 +85,14 @@ public class TodoController {
 	}
 	
 	@PutMapping
-	public Result<Long> modify(@RequestBody Todo newTodo) {
-		log.info("modify : " + newTodo);
+	public Result<Long> modify(@RequestBody Request request) {
+		log.info("modify : " + request);
 		
-		Result<Long> result = new Result<>();
-		Todo todo = todoService.register(newTodo);
+		Result<Long> result = new Result<Long>();
+		Todo todo = todoService.modify(request.getTodo());
 		if(todo == null) {
 			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
-			result.setErrorMessage("Not Found.");
+			result.setErrorMessage("Not Found");
 		}else {
 			result.setResult(todo.getId());
 		}

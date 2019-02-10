@@ -9,7 +9,6 @@ public class WebController {
 
 	@RequestMapping("/")
 	public String index(Model model) {
-		model.addAttribute("name", "chang!!!");
 		return "index";
 	}
 }
