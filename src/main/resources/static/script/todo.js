@@ -1,7 +1,7 @@
 'use strict';
 $(document).ready(() => {
 
-	$('#todoTable').DataTable({
+	var table = $('#todoTable').DataTable({
 		processing: true,
 		serverSide: true,
 		ordering: false,
@@ -45,9 +45,24 @@ $(document).ready(() => {
 			{data: "content"},
 			{data: "insDtm"},
 			{data: "updDtm"},
-			{data: "compYn"}
-		]
+		    {
+		      "data": "null", // can be null or undefined
+		      "defaultContent": "<button>완료</button>"
+		    }
+		],
+		"columnDefs": [ {
+		    "targets": 4,
+		    "data": "compYn",
+		    "render": function ( data, type, row, meta ) {
+		      return data=="N"?"<button>완료</button>":"<button>취소</button>";
+		    }
+		  } ]
 	});
+	
+	$('#todoTable tbody').on( 'click', 'button', function () {
+        var data = table.row( $(this).parents('tr') ).data();
+        alert( data[0] +"'s salary is: "+ data[ 2 ] );
+    } );
 
 	$('#todoForm').submit((e) => {
 		e.preventDefault();
