@@ -1,5 +1,10 @@
 'use strict';
 $(document).ready(() => {
+	$('#myTabs a').click(function (e) {
+		  e.preventDefault()
+		  $(this).tab('show')
+		})
+
 
 	var table = $('#todoTable').DataTable({
 		processing: true,
@@ -51,8 +56,17 @@ $(document).ready(() => {
 		    }
 		],
 		"columnDefs": [ {
-		    "targets": 4,
+		    "targets": 0,
+		    "width": "10%"},
+		    {
+		    "targets": 2,
+		    "width": "15%"},
+		    {
+		    "targets": 3,
+		    "width": "15%"},
+		    {"targets": 4,
 		    "data": "compYn",
+		    "width": "10%",
 		    "render": function ( data, type, row, meta ) {
 		      return data=="N"?"<button>완료</button>":"<button>취소</button>";
 		    }
@@ -89,5 +103,72 @@ $(document).ready(() => {
 			$('#todoTable').DataTable().ajax.reload(null, false);
 		});
 	});
+	
+	$( "#inputAutocomplete" ).autocomplete({
+	      source: function( request, response ) {
+	    	  
+	        var contentStr = $("#inputAutocomplete").val();
+	        
+	        $.ajax({
+	             url: '/api/todo/findByIdNotAndContentLike/',
+	             method: 'get',
+	             data: {
+	 	            content : contentStr
+		          },
+	             contentType: "application/json",
+	             dataType: 'json'
+	         }).then((data) => {
+	        	 if(data && data.errorCode == "200" && data.result){
+	        		 console.log(data);
+	        		 var tododata = data.result;
+	        		 
+	        		 response(
+	                         $.map(tododata, function(item) {
+	                        	 console.log("item")
+	                        	 console.log(item)
+	                        	 
+	                             return {
+	                                 label: item.content,
+	                                 value: item.id
+	                             }
+	                         })
+	                     );
+	        	 }
+	         }).catch((data) => {
+	        	 console.log(data);
+	         });
+	        
+	      },
+	      minLength: 2,
+	      select: function( event, ui ) {
+	        console.log( "Selected: " + ui.item.id + " aka " + ui.item.content );
+	      }
+	    } );
+		
+//	const _BASE_PREFIX = '/api/todo/findByIdNotAndContentLike';
+//
+//    function _findAll(param, callback) {
+//        $.ajax({
+//            url: _BASE_PREFIX,
+//            method: 'get',
+//            data: param,
+//            contentType: "application/json",
+//            dataType: 'json'
+//        }).then((response) => {
+//            callback(null, response);
+//        }).catch((response) => {
+//            let responseJSON = response.result;
+//            let message = responseJSON.errorMessage;
+//            callback(message, responseJSON);
+//        });
+//    }
+		
+	// 자동 완성 ON (위 코드 그대로) 
+		//$("#inputAutocomplete").autocomplete({ source: "/YOUR/SEARCH/URL", minLength: 2, }); 
+	// modal이 열릴 때 다시 영역 한정 (appendTo 옵션) 
+		$("#myModal").on("shown.bs.modal", function() { 
+			$("#inputAutocomplete").autocomplete("option", "appendTo", "#myModal") 
+		});
+
 
 });

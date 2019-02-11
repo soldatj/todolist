@@ -1,5 +1,7 @@
 package com.kakaopay.todolist.todolist.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kakaopay.todolist.todolist.domain.Request;
@@ -35,7 +39,24 @@ public class TodoController {
 		this.todoService = todoService;
 	}
 	
-	@GetMapping("/{id}")
+	@RequestMapping(value = "/findByIdNotAndContentLike", method = RequestMethod.GET, produces = "application/json")
+	public Result<List<Todo>> findByIdNotAndContentLike(@RequestParam(value = "id", defaultValue = "-1")Long id,
+			@RequestParam(value = "content", defaultValue = "") String content ) {
+		log.info("findByIdNotAndContentLike : " + id);
+		
+		Result<List<Todo>> result = new Result<>();
+		List<Todo> todoList = todoService.findByIdNotAndContentLike(id, content);
+		if(todoList == null || todoList.isEmpty()) {
+			result.setErrorCode(HttpStatus.NOT_FOUND.value());
+			result.setErrorMessage("Not found");
+		}else {
+			result.setResult(todoList);
+		}
+		
+		return result;
+	}
+	
+	@GetMapping("/find/{id}")
 	public Result<Todo> find(@PathVariable Long id) {
 		log.info("find : " + id);
 		

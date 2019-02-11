@@ -22,3 +22,8 @@
     -webkit-box-shadow: none;
     box-shadow: none;
 }
+
+.modal-dialog{
+	width:500px;
+	height:600px;
+}

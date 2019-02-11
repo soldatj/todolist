@@ -1,9 +1,12 @@
 package com.kakaopay.todolist.todolist.services.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.kakaopay.todolist.todolist.domain.Todo;
 import com.kakaopay.todolist.todolist.repository.TodoRepository;
@@ -18,6 +21,12 @@ public class TodoServiceImpl implements TodoService {
 	@Override
 	public Todo find(Long id) {
 		return todoRepository.findById(id).orElse(null);
+	}
+	
+	@Override
+	public List<Todo> findByIdNotAndContentLike(Long id, String content) {
+		String contentLikeStr = "%" + content + "%";
+		return todoRepository.findByIdNotAndContentLike(id, contentLikeStr);
 	}
 
 	@Override
