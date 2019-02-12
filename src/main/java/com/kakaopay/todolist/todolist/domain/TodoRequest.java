@@ -11,7 +11,7 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @ToString
-public class Request {
+public class TodoRequest {
 	public Todo todo;
 	
 	public List<RefTodo> refTodoList;

@@ -24,6 +24,8 @@
 }
 
 .modal-dialog{
-	width:500px;
-	height:600px;
+}
+
+table.dataTable tbody td {
+  vertical-align: middle;
 }

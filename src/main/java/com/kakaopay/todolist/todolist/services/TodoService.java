@@ -4,13 +4,11 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.kakaopay.todolist.todolist.domain.Todo;
 
 public interface TodoService {
-	public Todo find(@PathVariable Long id);
+	public Todo find(Long id);
 	
 	public List<Todo> findByIdNotAndContentLike(Long id, String content);
 	

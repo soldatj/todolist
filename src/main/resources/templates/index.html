@@ -2,10 +2,10 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}"/>
 	<link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.min.css}"/>
 	<link rel="stylesheet" type="text/css" th:href="@{/webjars/jquery-ui/1.12.1/jquery-ui.css}"/>
 	<link rel="stylesheet" type="text/css" th:href="@{/css/dataTables.bootstrap4.min.css}"/>
+	<link rel="stylesheet" type="text/css" th:href="@{/css/common.css}"/>
 	
 	<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.min.js}"></script>
 	<script type="text/javascript" th:src="@{/webjars/jquery-ui/1.12.1/jquery-ui.js}"></script>
@@ -14,7 +14,6 @@
 	<script type="text/javascript" th:src="@{/script/todoApi.js}"></script>
 	<script type="text/javascript" th:src="@{/script/todo.js}"></script>
 
-	
 	<script type="text/javascript" th:src="@{/script/datatables.min.js}"></script>
 
 
@@ -23,19 +22,16 @@
 </head>
 <body>
 
-
-
-<!-- Modal -->
-  <div class="modal fade" id="myModal" role="dialog">
-    <div class="modal-dialog modal-lg">
-    
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title">할일 입력</h4>
-          <button type="button" class="close" data-dismiss="modal">×</button>
-        </div>
-        <div class="modal-body">
+	<!-- Modal -->
+	<div class="modal fade" id="todoFormModal" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">할일 입력</h4>
+					<button type="button" class="close" data-dismiss="modal">×</button>
+				</div>
+				<div class="modal-body">
 			<div class="container">
 				<form id="todoForm">
 					<div class="bs-inputform">
@@ -47,33 +43,32 @@
 							<button class="btn btn-success" type="submit">할일추가</button>
 						</div>
 						<div class="row" style="margin-left:5px">
-							<div class="col-sm-5">
-								<input type="text" id="ipt_refference" class="form-control" placeholder="참조" autofocus=""/>
-								<input type="text" id="inputAutocomplete" class="form-control" placeholder="참조" autofocus=""/>
+							<div class="col-sm-10">
+								<input type="text" id="ipt_acTodoList" class="form-control" placeholder="참조" autofocus=""/>
 							</div>
-							<button class="btn btn-info btn-pm" type="submit">+</button><button class="btn btn-info btn-pm" type="submit">-</button>
+							<button class="btn btn-info btn-pm" >+</button><button class="btn btn-info btn-pm" >-</button>
 						</div>
 						<div class="row" style="margin-left:5px">
-							<div class="col-sm-5">
+							<div class="col-sm-10">
 								<select multiple class="form-control">
-								  <option>@1</option>
-								  <option>@2</option>
-								  <option>@3</option>
-								  <option>@4</option>
-								  <option>@5</option>
+									<option>@1</option>
+									<option>@2</option>
+									<option>@3</option>
+									<option>@4</option>
+									<option>@5</option>
 								</select>
 							</div>
 						</div>
 					</div>
 				</form>
 			</div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 
 	<div class="container" style="margin-top:5px">
@@ -89,7 +84,7 @@
 			<tbody>
 			</tbody>
 		</table>
-		<button type="button" data-toggle="modal" class="btn btn-success" data-target="#myModal" style="float:right;margin-right:10px">새로입력</button>
+		<button type="button" data-toggle="modal" class="btn btn-success" data-target="#todoFormModal" style="float:right;margin-right:10px">새로입력</button>
 	</div>
 
 

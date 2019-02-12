@@ -9,6 +9,7 @@ import com.kakaopay.todolist.todolist.domain.Todo;
 
 public interface TodoRepository extends JpaRepository<Todo, Long>{
 	List<Todo> findByIdLike(@Param("id") String id);
+	
 	Todo findOneByContent(@Param("content") String content);
 	
 	List<Todo> findByContentLike(String content);

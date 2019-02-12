@@ -17,12 +17,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.kakaopay.todolist.todolist.domain.RefTodo;
 import com.kakaopay.todolist.todolist.domain.Todo;
 
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class TodoServiceTest {
 
 	@Autowired
 	private TodoService todoService;
+	
+	@Autowired
+	private RefTodoService refTodoService;
 
 	private Todo setUpTodo = null;
 	
@@ -72,10 +76,6 @@ public class TodoServiceTest {
 		assertThat(resultTodo).isNotNull();
 		assertThat(resultTodo.getContent()).isEqualTo(modifyContent);
 		assertThat(resultTodo.getCompYn()).isEqualTo(modifyCompYn);
-		
-		Page<Todo> resultSize10 = todoService.findAll(PageRequest.of(0, 10));
-		
-		resultSize10.getSize();
 	}
 	
 	@Test
@@ -101,44 +101,45 @@ public class TodoServiceTest {
 	
 	@Test
 	public void whenRegister_thenReturnTodo() throws Exception{
-		Page<Todo> resultSize10 = todoService.findAll(PageRequest.of(0, 10));
-		
-		resultSize10.getSize();
-		
 		//when
 		Todo todo = new Todo();
-		todo.setContent("호텔 예약하기");
+		todo.setContent("비행기 예약하기");
+		todo = todoService.register(todo);
+		
+		Todo todoR1 = new Todo();
+		todoR1.setContent("호텔 예약하기");
+		todoR1 = todoService.register(todoR1);
+		
+		Todo todoR2 = new Todo();
+		todoR2.setContent("맛집 예약하기");
+		todoR2 = todoService.register(todoR2);
+		
+		List<RefTodo> refTodoList = new ArrayList<RefTodo>();
 		
 		RefTodo refTodo1 = new RefTodo();
-		refTodo1.setId(1l);
-		refTodo1.setRefId(2l);
+		refTodo1.setTodoId(todo.getId());
+		refTodo1.setRefTodoId(todoR1.getId());
+		refTodoList.add(refTodo1);
+		
 		RefTodo refTodo2 = new RefTodo();
-//		refTodo1.setId(2l);
-		refTodo2.setRefId(3l);
+		refTodo2.setTodoId(todo.getId());
+		refTodo2.setRefTodoId(todoR2.getId());
+		refTodoList.add(refTodo2);
 		
-		ArrayList<RefTodo> refTodoList = new ArrayList<RefTodo>();
-//		refTodoList.add(refTodo1);
-//		refTodoList.add(refTodo2);
+		refTodoService.registerList(refTodoList);
 		
-//		todo.setRefTodoList(refTodoList);
-		
-		Todo result = todoService.register(todo);
+		List<RefTodo> resultSize2 = refTodoService.findAllByTodoId(todo.getId());
 		
 		//then
-		assertThat(result).isNotNull();
-		assertThat(result.getId()).isNotNull();
-		
-		Todo resultSize101 = todoService.find(result.getId());
-		
-		System.out.println(resultSize101);
-		
-		
+		assertThat(todo).isNotNull();
+		assertThat(todo.getId()).isNotNull();
+		assertThat(resultSize2.size()).isEqualTo(2);
 	}
 	
 	@Test
 	public void whenRegisterListAndFindAll_thenReturnTodoList() throws Exception{
 		//when
-		for(int i=0; i>100; i++) {
+		for(int i=0; i<100; i++) {
 			Todo todo = new Todo();
 			todo.setContent("todo : " + i);
 			todoService.register(todo);
@@ -150,5 +151,55 @@ public class TodoServiceTest {
 		//then
 		assertThat(resultSize10.getSize()).isEqualTo(10);
 		assertThat(resultSize20.getSize()).isEqualTo(20);
+	}
+	
+	
+	@Test
+	public void whenRemoveAndRegister_thenReturnRefTodoList() throws Exception{
+		//when
+		Todo todo = new Todo();
+		todo.setContent("비행기 예약하기");
+		todo = todoService.register(todo);
+		
+		Todo todoR1 = new Todo();
+		todoR1.setContent("호텔 예약하기");
+		todoR1 = todoService.register(todoR1);
+		
+		RefTodo refTodo1 = new RefTodo();
+		refTodo1.setTodoId(todo.getId());
+		refTodo1.setRefTodoId(todoR1.getId());
+		
+		List<RefTodo> refTodoList = new ArrayList<RefTodo>();
+		refTodoList.add(refTodo1);
+		refTodoService.registerList(refTodoList);
+		
+		assertThat(todo).isNotNull();
+		assertThat(todo.getId()).isNotNull();
+		
+		List<RefTodo> resultSize1 = refTodoService.findAllByTodoId(todo.getId());
+		assertThat(resultSize1.size()).isEqualTo(1);
+		
+		//RefTodo 목록 삭제 후 재입력
+		List<RefTodo> refTodoList2 = new ArrayList<RefTodo>();
+		for(int i=0; i<90; i++) {
+			Todo todoF = new Todo();
+			todoF.setContent("todoF : " + i);
+			todoService.register(todoF);
+			
+			RefTodo refTodoF = new RefTodo();
+			refTodoF.setTodoId(todo.getId());
+			refTodoF.setRefTodoId(todoF.getId());
+			
+			refTodoList2.add(refTodoF);
+		}
+		
+		refTodoService.registerList(refTodoList2);
+				
+		//then
+		assertThat(todo).isNotNull();
+		assertThat(todo.getId()).isNotNull();
+		
+		List<RefTodo> resultRefTodosSize90 = refTodoService.findAllByTodoId(todo.getId());
+		assertThat(resultRefTodosSize90.size()).isEqualTo(90);
 	}
 }

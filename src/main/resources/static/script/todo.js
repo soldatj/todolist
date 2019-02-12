@@ -1,11 +1,7 @@
-'use strict';
-$(document).ready(() => {
-	$('#myTabs a').click(function (e) {
-		  e.preventDefault()
-		  $(this).tab('show')
-		})
-
-
+$(document).ready(function(){
+	 $.ajaxSetup({ cache: false });
+	 
+	//init Table
 	var table = $('#todoTable').DataTable({
 		processing: true,
 		serverSide: true,
@@ -17,14 +13,14 @@ $(document).ready(() => {
 			processing: "로드 중 입니다.",
 			loadingRecords: "잠시만 기다려 주세요.",
 			paginate: {
-				first: "처음",
-				last: "마지막 ",
-				next: "다음",
-				previous: "이전"
+				first: "<<",
+				last: ">>",
+				next: ">",
+				previous: "<"
 			}
 		},
 		ajax: function (data, callback, settings) {
-			let page = Math.floor(data.start / data.length);
+			var page = Math.floor(data.start / data.length);
 
 			todoApi.findAll({page: page},
 				function (message, response) {
@@ -40,8 +36,8 @@ $(document).ready(() => {
 				});
 		},
 		infoCallback: function (settings, start, end, max, total, pre) {
-			let api = this.api();
-			let pageInfo = api.page.info();
+			var api = this.api();
+			var pageInfo = api.page.info();
 
 			return 'Page ' + (pageInfo.page + 1) + ' of ' + pageInfo.pages;
 		},
@@ -50,50 +46,63 @@ $(document).ready(() => {
 			{data: "content"},
 			{data: "insDtm"},
 			{data: "updDtm"},
-		    {
-		      "data": "null", // can be null or undefined
-		      "defaultContent": "<button>완료</button>"
-		    }
+			{
+				"data": "compYn",
+				"defaultContent": "<button>완료</button>"
+			}
 		],
-		"columnDefs": [ {
-		    "targets": 0,
-		    "width": "10%"},
-		    {
-		    "targets": 2,
-		    "width": "15%"},
-		    {
-		    "targets": 3,
-		    "width": "15%"},
-		    {"targets": 4,
-		    "data": "compYn",
-		    "width": "10%",
-		    "render": function ( data, type, row, meta ) {
-		      return data=="N"?"<button>완료</button>":"<button>취소</button>";
-		    }
-		  } ]
+		"columnDefs": [ 
+			{
+				"targets": 0,
+				"width": "50px",
+				"className": "text-center",
+			    "render": function ( data, type, full, meta ) {
+					return '<a href="#">'+data+'</a>';
+			    }
+			},
+			{
+				"targets": 2,
+				"className": "text-center",	
+				"width": "150px"
+			},
+			{
+				"targets": 3,
+				"className": "text-center",
+				"width": "150px"
+			},
+			{"targets": 4,
+			"className": "text-center",
+			"width": "70px",
+			"render": function ( data, type, row, meta ) {
+					var btnModCompY = "<button class='btn btn-success'>완료</button>";
+					var btnModCompN = "<button class='btn btn-success'>취소</button>";
+					
+					return data=="N"?btnModCompY:btnModCompN;
+				}
+			} ]
 	});
 	
-	$('#todoTable tbody').on( 'click', 'button', function () {
-        var data = table.row( $(this).parents('tr') ).data();
-        alert( data[0] +"'s salary is: "+ data[ 2 ] );
-    } );
+//	$('#todoTable tbody').on( 'click', 'button', function () {
+//		var data = table.row( $(this).parents('tr') ).data();
+//		alert( data[0] +"'s salary is: "+ data[ 2 ] );
+//	} );
 
-	$('#todoForm').submit((e) => {
+	$('#todoForm').submit(function(e){
 		e.preventDefault();
 		if (!confirm("저장 하시겠습니까?")) {
 			return false;
 		}
-		let content = $('#ipt_content').val();
+		
+		var content = $('#ipt_content').val();
 
-
-		let param = {
+		var param = {
 			todo: {
 				content:content
 			},
 			refTodoList: []
 		};
 
-		todoApi.create(param, (message, response) => {
+		todoApi.register(param, function(message, response){
 			if (message != null) {
 				alert("등록에 실패하였습니다."
 					+ "\nCODE : " + response.code
@@ -104,71 +113,44 @@ $(document).ready(() => {
 		});
 	});
 	
-	$( "#inputAutocomplete" ).autocomplete({
-	      source: function( request, response ) {
-	    	  
-	        var contentStr = $("#inputAutocomplete").val();
-	        
-	        $.ajax({
-	             url: '/api/todo/findByIdNotAndContentLike/',
-	             method: 'get',
-	             data: {
-	 	            content : contentStr
-		          },
-	             contentType: "application/json",
-	             dataType: 'json'
-	         }).then((data) => {
-	        	 if(data && data.errorCode == "200" && data.result){
-	        		 console.log(data);
-	        		 var tododata = data.result;
-	        		 
-	        		 response(
-	                         $.map(tododata, function(item) {
-	                        	 console.log("item")
-	                        	 console.log(item)
-	                        	 
-	                             return {
-	                                 label: item.content,
-	                                 value: item.id
-	                             }
-	                         })
-	                     );
-	        	 }
-	         }).catch((data) => {
-	        	 console.log(data);
-	         });
-	        
-	      },
-	      minLength: 2,
-	      select: function( event, ui ) {
-	        console.log( "Selected: " + ui.item.id + " aka " + ui.item.content );
-	      }
-	    } );
-		
-//	const _BASE_PREFIX = '/api/todo/findByIdNotAndContentLike';
-//
-//    function _findAll(param, callback) {
-//        $.ajax({
-//            url: _BASE_PREFIX,
-//            method: 'get',
-//            data: param,
-//            contentType: "application/json",
-//            dataType: 'json'
-//        }).then((response) => {
-//            callback(null, response);
-//        }).catch((response) => {
-//            let responseJSON = response.result;
-//            let message = responseJSON.errorMessage;
-//            callback(message, responseJSON);
-//        });
-//    }
-		
-	// 자동 완성 ON (위 코드 그대로) 
-		//$("#inputAutocomplete").autocomplete({ source: "/YOUR/SEARCH/URL", minLength: 2, }); 
-	// modal이 열릴 때 다시 영역 한정 (appendTo 옵션) 
-		$("#myModal").on("shown.bs.modal", function() { 
-			$("#inputAutocomplete").autocomplete("option", "appendTo", "#myModal") 
-		});
-
-
+	//init AutoCo
+	$( "#ipt_acTodoList" ).autocomplete({
+		source: function( request, response ) {
+			var contentStr = $("#ipt_acTodoList").val();
+			
+			$.ajax({
+				url: todoApi.BASE_PREFIX + 'findByIdNotAndContentLike/',
+				method: 'get',
+				data: {
+					content : contentStr
+					},
+				contentType: "application/json",
+				dataType: 'json'
+			}).then(function(data){
+				if(data && data.errorCode == "200" && data.result){
+					var tododata = data.result;
+					response(
+						$.map(tododata, function(item) {
+							return {
+								label: item.content,
+								value: item.id
+							}
+						})
+					);
+				}
+			}).catch(function(data){
+				console.log(data);
+			});
+			
+			},
+			minLength: 2,
+			select: function( event, ui ) {
+			console.log( "Selected: " + ui.item.id + " aka " + ui.item.content );
+		}
+	});
+	
+	//Modal 오픈시 autocomplate 영역조절
+	$("#todoFormModal").on("shown.bs.modal", function() { 
+		$("#ipt_acTodoList").autocomplete("option", "appendTo", "#todoFormModal") 
+	});
 });

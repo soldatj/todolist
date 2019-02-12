@@ -1,10 +1,6 @@
 package com.kakaopay.todolist.todolist.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.Table;
+import java.io.Serializable;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -13,23 +9,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Entity
-@Table(name="RefTodo")
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-@IdClass(RefTodoPk.class)
-public class RefTodo {
-	@Id
-	@Column
+public class RefTodoPk implements Serializable{
+	private static final long serialVersionUID = -1754946376034089035L;
 	private Long todoId;
-	 
-	@Id
-	@Column
 	private Long refTodoId;
 }
-
-
