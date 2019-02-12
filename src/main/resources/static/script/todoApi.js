@@ -16,6 +16,38 @@ var todoApi = {
 			callback(message, responseJSON);
 		});
 	},
+	
+	findAllRefTodo : function(param, callback) {
+		$.ajax({
+			url: todoApi.BASE_PREFIX + 'reftodo/find/',
+			method: 'get',
+			data: param,
+			contentType: "application/json",
+			dataType: 'json'
+		}).then(function(response){
+			callback(null, response);
+		}).catch(function(response){
+			var responseJSON = response.result;
+			var message = responseJSON.errorMessage;
+			callback(message, responseJSON);
+		});
+	},
+	
+	findByIdNotAndContentLike : function(param, callback) {
+		$.ajax({
+			url: todoApi.BASE_PREFIX + 'findByIdNotAndContentLike/',
+			method: 'get',
+			data: param,
+			contentType: "application/json",
+			dataType: 'json'
+		}).then(function(response){
+			callback(null, response);
+		}).catch(function(response){
+			var responseJSON = response.result;
+			var message = responseJSON.errorMessage;
+			callback(message, responseJSON);
+		});
+	},
 
 	register : function(param, callback) {
 		$.ajax({
@@ -36,6 +68,22 @@ var todoApi = {
 	modify : function(param, callback) {
 		$.ajax({
 			url: todoApi.BASE_PREFIX,
+			method: 'put',
+			data: JSON.stringify(param),
+			contentType: "application/json",
+			dataType: 'json'
+		}).then(function(response){
+			callback(null, response);
+		}).catch(function(response){
+			var responseJSON = response.result;
+			var message = responseJSON.errorMessage;
+			callback(message, responseJSON);
+		});
+	},
+	
+	complate : function(param, callback) {
+		$.ajax({
+			url: todoApi.BASE_PREFIX+"complate/",
 			method: 'put',
 			data: JSON.stringify(param),
 			contentType: "application/json",

@@ -15,15 +15,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kakaopay.todolist.todolist.domain.RefTodo;
+import com.kakaopay.todolist.todolist.domain.RefTodoMap;
 import com.kakaopay.todolist.todolist.domain.Result;
 import com.kakaopay.todolist.todolist.domain.Todo;
 import com.kakaopay.todolist.todolist.domain.TodoRequest;
-import com.kakaopay.todolist.todolist.services.RefTodoService;
+import com.kakaopay.todolist.todolist.services.RefTodoMapService;
 import com.kakaopay.todolist.todolist.services.TodoService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +33,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TodoController {
 	private TodoService todoService;
-	private RefTodoService refTodoService;
+	private RefTodoMapService refTodoMapService;
 	
 	@Autowired
-	public TodoController(TodoService todoService) {
+	public TodoController(TodoService todoService, RefTodoMapService refTodoService) {
 		this.todoService = todoService;
+		this.refTodoMapService = refTodoService;
 	}
 	
 	@GetMapping("/find/{id}")
@@ -73,21 +73,37 @@ public class TodoController {
 		return result;
 	}
 	
+	@GetMapping("/reftodo/find/{id}")
+	public Result<List<Todo>> findRefTodoList(@PathVariable Long id) {
+		log.info("findAll");
+		
+		Result<List<Todo>> result = new Result<>();
+		List<Todo> page = todoService.findRefTodoListById(id);
+		if(page == null) {
+			result.setErrorCode(HttpStatus.NOT_FOUND.value());
+			result.setErrorMessage("Not found");
+		}else {
+			result.setResult(page);
+		}
+		
+		return result;
+	}
+	
 	@PostMapping
-	public Result<Long> register(@RequestBody TodoRequest request) {
-		log.info("register : " + request);
+	public Result<Long> register(@RequestBody TodoRequest todoRequest) {
+		log.info("register : " + todoRequest);
 		
 		Result<Long> result = new Result<Long>();
-		Todo returnTodo = todoService.register(request.getTodo());
+		Todo returnTodo = todoService.register(todoRequest.getTodo());
 		
 		if(returnTodo == null) {
 			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
 			result.setErrorMessage("Already Exists");
 		}else {
-			List<RefTodo> refTodoList = request.getRefTodoList();
+			List<RefTodoMap> refTodoList = todoRequest.getRefTodoList();
 			
 			if(refTodoList!=null && !refTodoList.isEmpty()) {
-				refTodoService.registerList(refTodoList);
+				refTodoMapService.registerSameTodoIdList(returnTodo.getId(), refTodoList);
 			}
 			
 			result.setResult(returnTodo.getId());
@@ -97,20 +113,20 @@ public class TodoController {
 	}
 	
 	@PutMapping
-	public Result<Long> modify(@RequestBody TodoRequest request) {
-		log.info("modify : " + request);
+	public Result<Long> modify(@RequestBody TodoRequest todoRequest) {
+		log.info("modify : " + todoRequest);
 		
 		Result<Long> result = new Result<Long>();
-		Todo returnTodo = todoService.modify(request.getTodo());
+		Todo returnTodo = todoService.modify(todoRequest.getTodo());
 		
 		if(returnTodo == null) {
 			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
 			result.setErrorMessage("Not Found");
 		}else {
-			List<RefTodo> refTodoList = request.getRefTodoList();
+			List<RefTodoMap> refTodoList = todoRequest.getRefTodoList();
 			
 			if(refTodoList!=null && !refTodoList.isEmpty()) {
-				refTodoService.registerList(refTodoList);
+				refTodoMapService.registerSameTodoIdList(returnTodo.getId(), refTodoList);
 			}
 			
 			result.setResult(returnTodo.getId());
@@ -119,7 +135,24 @@ public class TodoController {
 		return result;
 	}
 	
-	@RequestMapping(value = "/findByIdNotAndContentLike", method = RequestMethod.GET, produces = "application/json")
+	@PutMapping(value = "/complate")
+	public Result<Long> complate(@RequestBody Todo todo) {
+		log.info("complate : " + todo);
+		
+		Result<Long> result = new Result<Long>();
+		Todo returnTodo = todoService.modify(todo);
+		
+		if(returnTodo == null) {
+			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
+			result.setErrorMessage("Not Found");
+		}else {
+			result.setResult(returnTodo.getId());
+		}
+		
+		return result;
+	}
+	
+	@GetMapping(value = "/findByIdNotAndContentLike")
 	public Result<List<Todo>> findByIdNotAndContentLike(@RequestParam(value = "id", defaultValue = "-1")Long id,
 			@RequestParam(value = "content", defaultValue = "") String content ) {
 		log.info("findByIdNotAndContentLike : " + id);

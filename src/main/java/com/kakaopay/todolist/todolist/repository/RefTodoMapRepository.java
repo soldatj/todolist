@@ -6,11 +6,11 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kakaopay.todolist.todolist.domain.RefTodo;
-import com.kakaopay.todolist.todolist.domain.RefTodoPk;
+import com.kakaopay.todolist.todolist.domain.RefTodoMap;
+import com.kakaopay.todolist.todolist.domain.RefTodoMapPk;
 
-public interface RefTodoRepository extends CrudRepository<RefTodo, RefTodoPk>{
-	List<RefTodo> findByTodoId(@Param("todoId") Long todoId);
+public interface RefTodoMapRepository extends CrudRepository<RefTodoMap, RefTodoMapPk>{
+	List<RefTodoMap> findByTodoId(@Param("todoId") Long todoId);
 	
 	@Transactional
 	void removeByTodoId(@Param("todoId") Long todoId);

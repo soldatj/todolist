@@ -14,5 +14,5 @@ import lombok.ToString;
 public class TodoRequest {
 	public Todo todo;
 	
-	public List<RefTodo> refTodoList;
+	public List<RefTodoMap> refTodoList;
 }

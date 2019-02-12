@@ -16,7 +16,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-public class RefTodoPk implements Serializable{
+public class RefTodoMapPk implements Serializable{
 	private static final long serialVersionUID = -1754946376034089035L;
 	private Long todoId;
 	private Long refTodoId;

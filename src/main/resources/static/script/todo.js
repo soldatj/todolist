@@ -118,19 +118,15 @@ $(document).ready(function(){
 		source: function( request, response ) {
 			var contentStr = $("#ipt_acTodoList").val();
 			
-			$.ajax({
-				url: todoApi.BASE_PREFIX + 'findByIdNotAndContentLike/',
-				method: 'get',
-				data: {
-					content : contentStr
-					},
-				contentType: "application/json",
-				dataType: 'json'
-			}).then(function(data){
+			var param = {
+				content : contentStr
+			};
+			
+			todoApi.findByIdNotAndContentLike(param, function(message, data){
 				if(data && data.errorCode == "200" && data.result){
-					var tododata = data.result;
+					var TodoMap = data.result;
 					response(
-						$.map(tododata, function(item) {
+						$.map(TodoMap, function(item) {
 							return {
 								label: item.content,
 								value: item.id
@@ -138,13 +134,12 @@ $(document).ready(function(){
 						})
 					);
 				}
-			}).catch(function(data){
-				console.log(data);
+				$('#todoTable').DataTable().ajax.reload(null, false);
 			});
 			
-			},
-			minLength: 2,
-			select: function( event, ui ) {
+		},
+		minLength: 2,
+		select: function( event, ui ) {
 			console.log( "Selected: " + ui.item.id + " aka " + ui.item.content );
 		}
 	});

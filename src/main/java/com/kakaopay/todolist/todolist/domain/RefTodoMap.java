@@ -21,8 +21,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-@IdClass(RefTodoPk.class)
-public class RefTodo {
+@IdClass(RefTodoMapPk.class)
+public class RefTodoMap {
 	@Id
 	@Column
 	private Long todoId;

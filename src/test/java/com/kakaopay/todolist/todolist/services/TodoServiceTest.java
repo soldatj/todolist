@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.kakaopay.todolist.todolist.domain.RefTodo;
+import com.kakaopay.todolist.todolist.domain.RefTodoMap;
 import com.kakaopay.todolist.todolist.domain.Todo;
 
 
@@ -26,12 +25,11 @@ public class TodoServiceTest {
 	private TodoService todoService;
 	
 	@Autowired
-	private RefTodoService refTodoService;
+	private RefTodoMapService refTodoMapService;
 
-	private Todo setUpTodo = null;
-	
-	@Before
-	public void setUpClass() throws Exception{
+	@Test
+	public void givenTodo_whenFind_thenReturnTodo() throws Exception{
+		//given
 		Todo todo = new Todo();
 		todo.setContent("호텔 예약하기");
 		todo.setCompYn("N");
@@ -39,16 +37,8 @@ public class TodoServiceTest {
 		Todo result = todoService.register(todo);
 		assertThat(result).isNotNull();
 		
-		this.setUpTodo = result;
-	}
-	
-	@Test
-	public void givenId_whenFind_thenReturnTodo() throws Exception{
-		//given
-		Long id = this.setUpTodo.getId();
-		
 		//when
-		Todo resultTodo = todoService.find(id);
+		Todo resultTodo = todoService.find(todo.getId());
 		
 		//then
 		assertThat(resultTodo).isNotNull();
@@ -60,16 +50,22 @@ public class TodoServiceTest {
 	}
 	
 	@Test
-	public void givenId_whenModify_thenReturnTodo() throws Exception{
+	public void givenTodo_whenModify_thenReturnTodo() throws Exception{
 		//given
+		Todo todo = new Todo();
+		todo.setContent("호텔 예약하기");
+		todo.setCompYn("N");
+		
+		Todo result = todoService.register(todo);
+		assertThat(result).isNotNull();
+		
+		//when
 		String modifyContent = "회의실 예약하기";
 		String modifyCompYn = "Y";
 		
-		Todo todo = this.setUpTodo;
 		todo.setContent(modifyContent);
 		todo.setCompYn(modifyCompYn);
 		
-		//when
 		Todo resultTodo = todoService.modify(todo);
 		
 		//then
@@ -79,17 +75,22 @@ public class TodoServiceTest {
 	}
 	
 	@Test
-	public void givenId_whenRemoveAndFind_thenReturnNull() throws Exception{
+	public void givenTodo_whenRemoveAndFind_thenReturnNull() throws Exception{
 		//given
-		Long id = this.setUpTodo.getId();
+		Todo todo = new Todo();
+		todo.setContent("호텔 예약하기");
+		todo.setCompYn("N");
+		
+		Todo result = todoService.register(todo);
+		assertThat(result).isNotNull();
 		
 		//when
-		Todo resultTodo = todoService.find(id);
+		Todo resultTodo = todoService.find(result.getId());
 		assertThat(resultTodo).isNotNull();
 		
-		todoService.remove(id);
+		todoService.remove(resultTodo.getId());
 		
-		resultTodo = todoService.find(id);
+		resultTodo = todoService.find(resultTodo.getId());
 		
 		//then
 		assertThat(resultTodo).isNull();
@@ -114,21 +115,19 @@ public class TodoServiceTest {
 		todoR2.setContent("맛집 예약하기");
 		todoR2 = todoService.register(todoR2);
 		
-		List<RefTodo> refTodoList = new ArrayList<RefTodo>();
+		List<RefTodoMap> refTodoList = new ArrayList<RefTodoMap>();
 		
-		RefTodo refTodo1 = new RefTodo();
-		refTodo1.setTodoId(todo.getId());
+		RefTodoMap refTodo1 = new RefTodoMap();
 		refTodo1.setRefTodoId(todoR1.getId());
 		refTodoList.add(refTodo1);
 		
-		RefTodo refTodo2 = new RefTodo();
-		refTodo2.setTodoId(todo.getId());
+		RefTodoMap refTodo2 = new RefTodoMap();
 		refTodo2.setRefTodoId(todoR2.getId());
 		refTodoList.add(refTodo2);
 		
-		refTodoService.registerList(refTodoList);
+		refTodoMapService.registerSameTodoIdList(todo.getId(), refTodoList);
 		
-		List<RefTodo> resultSize2 = refTodoService.findAllByTodoId(todo.getId());
+		List<RefTodoMap> resultSize2 = refTodoMapService.findAllByTodoId(todo.getId());
 		
 		//then
 		assertThat(todo).isNotNull();
@@ -165,41 +164,39 @@ public class TodoServiceTest {
 		todoR1.setContent("호텔 예약하기");
 		todoR1 = todoService.register(todoR1);
 		
-		RefTodo refTodo1 = new RefTodo();
-		refTodo1.setTodoId(todo.getId());
+		RefTodoMap refTodo1 = new RefTodoMap();
 		refTodo1.setRefTodoId(todoR1.getId());
 		
-		List<RefTodo> refTodoList = new ArrayList<RefTodo>();
+		List<RefTodoMap> refTodoList = new ArrayList<RefTodoMap>();
 		refTodoList.add(refTodo1);
-		refTodoService.registerList(refTodoList);
+		refTodoMapService.registerSameTodoIdList(todo.getId(), refTodoList);
 		
 		assertThat(todo).isNotNull();
 		assertThat(todo.getId()).isNotNull();
 		
-		List<RefTodo> resultSize1 = refTodoService.findAllByTodoId(todo.getId());
+		List<RefTodoMap> resultSize1 = refTodoMapService.findAllByTodoId(todo.getId());
 		assertThat(resultSize1.size()).isEqualTo(1);
 		
 		//RefTodo 목록 삭제 후 재입력
-		List<RefTodo> refTodoList2 = new ArrayList<RefTodo>();
+		List<RefTodoMap> refTodoList2 = new ArrayList<RefTodoMap>();
 		for(int i=0; i<90; i++) {
 			Todo todoF = new Todo();
 			todoF.setContent("todoF : " + i);
 			todoService.register(todoF);
 			
-			RefTodo refTodoF = new RefTodo();
-			refTodoF.setTodoId(todo.getId());
+			RefTodoMap refTodoF = new RefTodoMap();
 			refTodoF.setRefTodoId(todoF.getId());
 			
 			refTodoList2.add(refTodoF);
 		}
 		
-		refTodoService.registerList(refTodoList2);
+		refTodoMapService.registerSameTodoIdList(todo.getId(), refTodoList2);
 				
 		//then
 		assertThat(todo).isNotNull();
 		assertThat(todo.getId()).isNotNull();
 		
-		List<RefTodo> resultRefTodosSize90 = refTodoService.findAllByTodoId(todo.getId());
+		List<RefTodoMap> resultRefTodosSize90 = refTodoMapService.findAllByTodoId(todo.getId());
 		assertThat(resultRefTodosSize90.size()).isEqualTo(90);
 	}
 }
