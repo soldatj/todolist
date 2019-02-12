@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.kakaopay.todolist.todolist.domain.RefTodoMap;
 import com.kakaopay.todolist.todolist.domain.Todo;
-import com.kakaopay.todolist.todolist.exception.ExistsNotCompleteRefTodosException;
+import com.kakaopay.todolist.todolist.exception.NotExistTodoRefDataException;
 import com.kakaopay.todolist.todolist.repository.RefTodoMapRepository;
 import com.kakaopay.todolist.todolist.services.RefTodoMapService;
 import com.kakaopay.todolist.todolist.services.TodoService;
@@ -40,7 +40,7 @@ public class RefTodoMapServiceImpl implements RefTodoMapService {
 				//TODO Exception 생성 및 캐치
 				//존재하지않는 Todo 데이터가 입력되는 경우 처리
 				if(refTodo == null) {
-					throw new ExistsNotCompleteRefTodosException();
+					throw new NotExistTodoRefDataException();
 				}
 				
 				refData.setTodoId(todoId);
@@ -56,6 +56,10 @@ public class RefTodoMapServiceImpl implements RefTodoMapService {
 	@Override
 	public void removeByTodoId(Long id) {
 		refTodoRepository.removeByTodoId(id);
+	}
+	
+	public void validExistsRefDataTodos() {
+		
 	}
 
 }

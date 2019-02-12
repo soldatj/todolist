@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.kakaopay.todolist.todolist.domain.RefTodoMap;
 import com.kakaopay.todolist.todolist.domain.Todo;
+import com.kakaopay.todolist.todolist.exception.ExistNotCompleteRefTodoException;
 import com.kakaopay.todolist.todolist.repository.TodoRepository;
 import com.kakaopay.todolist.todolist.services.RefTodoMapService;
 import com.kakaopay.todolist.todolist.services.TodoService;
@@ -109,8 +110,13 @@ public class TodoServiceImpl implements TodoService {
 	@Override
 	public Todo modifyComplete(Long id, String compYn) {
 		Todo todo =  todoRepository.findById(id).orElse(null);
-		todo.setCompYn(compYn);
 		
+		//완료 상태로 전환시에 참조 할일들이 완료상태인지 체크
+		if("N".equals(compYn)) {
+			validNotExistsNotCompleteRefTodos(id);
+		}
+		
+		todo.setCompYn(compYn);
 		Todo result = modify(todo);
 		
 		if(result == null) {
@@ -118,5 +124,27 @@ public class TodoServiceImpl implements TodoService {
 		}
 		
 		return result;
+	}
+	
+	public void validNotExistsNotCompleteRefTodos(Long id) {
+		//참조 데이터 테이블을 조회
+		List<RefTodoMap> refDataList = refTodoMapService.findAllByTodoId(id);
+		
+		List<Todo> refTodoList = new ArrayList<Todo>();
+		
+		if(refDataList != null) {
+			//참조 데이터 테이블 정보를 바탕으로 참조 Todo 리스트를 조회
+			for(RefTodoMap refTodo : refDataList) {
+				Long refTodoId = refTodo.getRefTodoId();
+				
+				Todo refDtlTodo =  todoRepository.findById(refTodoId).orElse(null);
+				refTodoList.add(refDtlTodo);
+				
+				//참조 데이터가 N 인 경우 Exception 발생
+				if("N".equals(refDtlTodo.getCompYn())) {
+					throw new ExistNotCompleteRefTodoException(refTodoId);
+				}
+			}
+		}
 	}
 }

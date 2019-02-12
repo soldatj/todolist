@@ -18,12 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kakaopay.todolist.todolist.common.ErrorCode;
 import com.kakaopay.todolist.todolist.domain.RefTodoMap;
 import com.kakaopay.todolist.todolist.domain.Result;
 import com.kakaopay.todolist.todolist.domain.Todo;
 import com.kakaopay.todolist.todolist.domain.TodoRequest;
-import com.kakaopay.todolist.todolist.exception.TodoException;
 import com.kakaopay.todolist.todolist.services.RefTodoMapService;
 import com.kakaopay.todolist.todolist.services.TodoService;
 
@@ -70,7 +68,6 @@ public class TodoController {
 			result.setErrorMessage("Not found");
 		}else {
 			result.setResult(page);
-			throw new TodoException(ErrorCode.TODO_EXISTS_NOT_COMPLETE_REF_TODOS);
 		}
 		
 		return result;

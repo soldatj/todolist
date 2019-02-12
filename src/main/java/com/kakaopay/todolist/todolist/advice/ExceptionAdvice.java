@@ -8,17 +8,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.kakaopay.todolist.todolist.common.ErrorCode;
 import com.kakaopay.todolist.todolist.domain.Result;
-import com.kakaopay.todolist.todolist.exception.ExistsNotCompleteRefTodosException;
-import com.kakaopay.todolist.todolist.exception.TodoException;
+import com.kakaopay.todolist.todolist.exception.ExistNotCompleteRefTodoException;
 
 @ControllerAdvice
 public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(ExistsNotCompleteRefTodosException.class)
+    @ExceptionHandler(ExistNotCompleteRefTodoException.class)
     @ResponseBody
-    public Result handleExistsNotCompleteRefTodos(HttpServletRequest req, ExistsNotCompleteRefTodosException ex) {
+    public Result handleExistsNotCompleteRefTodos(HttpServletRequest req, ExistNotCompleteRefTodoException ex) {
         return new Result(ex.getHttpStatus().value(), ex.getMessage());
     }
 
