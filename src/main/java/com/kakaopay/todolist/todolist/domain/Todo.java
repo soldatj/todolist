@@ -14,6 +14,7 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -48,15 +49,19 @@ public class Todo {
 	@NonNull
 	@CreationTimestamp
 	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+	@ApiModelProperty(hidden= true)
 	private Date insDtm;
 	
 	@UpdateTimestamp
 	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+	@ApiModelProperty(hidden= true)
 	private Date updDtm;
 	
 	@Transient 
+	@ApiModelProperty(hidden= true)
 	private String contentAndRefTodoId;
 	
 	@Transient 
+	@ApiModelProperty(hidden= true)
 	private List<Todo> refTodoList;
 }

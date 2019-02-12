@@ -11,9 +11,7 @@ var todoApi = {
 		}).then(function(response){
 			callback(null, response);
 		}).catch(function(response){
-			var responseJSON = response.result;
-			var message = responseJSON.errorMessage;
-			callback(message, responseJSON);
+			callback(response.message, response);
 		});
 	},
 	
@@ -27,9 +25,7 @@ var todoApi = {
 		}).then(function(response){
 			callback(null, response);
 		}).catch(function(response){
-			var responseJSON = response.result;
-			var message = responseJSON.errorMessage;
-			callback(message, responseJSON);
+			callback(response.message, response);
 		});
 	},
 	
@@ -43,9 +39,7 @@ var todoApi = {
 		}).then(function(response){
 			callback(null, response);
 		}).catch(function(response){
-			var responseJSON = response.result;
-			var message = responseJSON.errorMessage;
-			callback(message, responseJSON);
+			callback(response.message, response);
 		});
 	},
 
@@ -59,9 +53,7 @@ var todoApi = {
 		}).then(function(response){
 			callback(null, response);
 		}).catch(function(response){
-			var responseJSON = response.result;
-			var message = responseJSON.errorMessage;
-			callback(message, responseJSON);
+			callback(response.message, response);
 		});
 	},
 	
@@ -75,26 +67,34 @@ var todoApi = {
 		}).then(function(response){
 			callback(null, response);
 		}).catch(function(response){
-			var responseJSON = response.result;
-			var message = responseJSON.errorMessage;
-			callback(message, responseJSON);
+			callback(response.message, response);
 		});
 	},
 	
-	complate : function(param, callback) {
+	complete : function(id, callback) {
 		$.ajax({
-			url: todoApi.BASE_PREFIX+"complate/",
+			url: todoApi.BASE_PREFIX + "complete/" + id,
 			method: 'put',
-			data: JSON.stringify(param),
 			contentType: "application/json",
 			dataType: 'json'
 		}).then(function(response){
 			callback(null, response);
 		}).catch(function(response){
-			var responseJSON = response.result;
-			var message = responseJSON.errorMessage;
-			callback(message, responseJSON);
+			callback(response.message, response);
 		});
-	}
+	},
+	
+	cancel : function(id, callback) {
+		$.ajax({
+			url: todoApi.BASE_PREFIX + "cancel/" + id,
+			method: 'put',
+			contentType: "application/json",
+			dataType: 'json'
+		}).then(function(response){
+			callback(null, response);
+		}).catch(function(response){
+			callback(response.message, response);
+		});
+	},
 }
 

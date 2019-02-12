@@ -18,10 +18,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kakaopay.todolist.todolist.common.ErrorCode;
 import com.kakaopay.todolist.todolist.domain.RefTodoMap;
 import com.kakaopay.todolist.todolist.domain.Result;
 import com.kakaopay.todolist.todolist.domain.Todo;
 import com.kakaopay.todolist.todolist.domain.TodoRequest;
+import com.kakaopay.todolist.todolist.exception.TodoException;
 import com.kakaopay.todolist.todolist.services.RefTodoMapService;
 import com.kakaopay.todolist.todolist.services.TodoService;
 
@@ -68,6 +70,7 @@ public class TodoController {
 			result.setErrorMessage("Not found");
 		}else {
 			result.setResult(page);
+			throw new TodoException(ErrorCode.TODO_EXISTS_NOT_COMPLETE_REF_TODOS);
 		}
 		
 		return result;
@@ -135,12 +138,29 @@ public class TodoController {
 		return result;
 	}
 	
-	@PutMapping(value = "/complate")
-	public Result<Long> complate(@RequestBody Todo todo) {
-		log.info("complate : " + todo);
+	@PutMapping(value = "/complete/{id}")
+	public Result<Long> complete(@PathVariable Long id) {
+		log.info("complate : " + id);
 		
 		Result<Long> result = new Result<Long>();
-		Todo returnTodo = todoService.modify(todo);
+		Todo returnTodo = todoService.modifyComplete(id, "Y");
+		
+		if(returnTodo == null) {
+			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
+			result.setErrorMessage("Not Found");
+		}else {
+			result.setResult(returnTodo.getId());
+		}
+		
+		return result;
+	}
+	
+	@PutMapping(value = "/cancel/{id}")
+	public Result<Long> cancel(@PathVariable Long id) {
+		log.info("cancel : " + id);
+		
+		Result<Long> result = new Result<Long>();
+		Todo returnTodo = todoService.modifyComplete(id, "N");
 		
 		if(returnTodo == null) {
 			result.setErrorCode(HttpStatus.BAD_REQUEST.value());

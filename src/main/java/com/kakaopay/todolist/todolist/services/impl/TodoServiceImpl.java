@@ -105,4 +105,18 @@ public class TodoServiceImpl implements TodoService {
 		
 		return refTodoList;
 	}
+
+	@Override
+	public Todo modifyComplete(Long id, String compYn) {
+		Todo todo =  todoRepository.findById(id).orElse(null);
+		todo.setCompYn(compYn);
+		
+		Todo result = modify(todo);
+		
+		if(result == null) {
+			return null;
+		}
+		
+		return result;
+	}
 }

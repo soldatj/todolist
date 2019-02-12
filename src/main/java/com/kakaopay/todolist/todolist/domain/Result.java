@@ -12,6 +12,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class Result<T> {
+	public Result(int errorCode, java.lang.String errorMessage) {
+		super();
+		this.errorCode = errorCode;
+		this.errorMessage = errorMessage;
+	}
+
 	private int errorCode = HttpStatus.OK.value();
 	
 	private String errorMessage = "success";
