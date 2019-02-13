@@ -2,66 +2,121 @@ package com.kakaopay.todolist.todolist.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.kakaopay.todolist.todolist.domain.Result;
-import com.kakaopay.todolist.todolist.domain.Todo;
-import com.kakaopay.todolist.todolist.services.TodoService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class TodoControllerTest {
 	@Autowired
-	private TodoController todoController;
-	
-	@Autowired
-	private TodoService todoService;
-	
-	@Autowired
-    private TestRestTemplate restTemplate;
-	
-	private Todo setUpTodo = null;
-	
-	@Before
-    public void init() {
-		Todo todo = new Todo();
-		todo.setContent("호텔 예약하기");
-		todo.setCompYn("N");
-		
-		Todo result = todoService.register(todo);
-		assertThat(result).isNotNull();
-		
-		this.setUpTodo = result;
-    }
+	private TestRestTemplate restTemplate;
 	
 	@Test
-    public void givenId_whenFind_thenReturnTodo() throws Exception {
-		//given
-		Long id = this.setUpTodo.getId();
+	public void whenRegisterAndFind_thenReturnTodo() throws Exception {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		Map<String, String> map = new HashMap<>();
+		String content = "호텔 예약하기";
+		map.put("content", content);
+
+		HttpEntity<Map<String, String>> request = new HttpEntity<>(map, headers);
+
+		ResponseEntity<Result> registerResponse = restTemplate.postForEntity("/api/todo/", request, Result.class);
+		assertThat(registerResponse).isNotNull();
 		
-		//when
-        ResponseEntity<Result> response = restTemplate.getForEntity("/api/todo/"+id, Result.class);
-        
-        //then
-        assertThat(response.getBody()).isNotNull();
-        
-        Result resResult = response.getBody();
-        assertThat(resResult.getErrorCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(resResult.getErrorMessage()).isEqualTo("success");
-        
-        
-        Map resultMap = (Map)resResult.getResult();
-        assertThat(resultMap).isNotNull();
-		assertThat(String.valueOf(resultMap.get("id"))).isEqualTo(String.valueOf(id));
-    }
+		Integer todoId = (Integer)registerResponse.getBody().getResult();
+		
+		ResponseEntity<Result> findResponse = restTemplate.getForEntity("/api/todo/find/"+todoId, Result.class);
+		assertThat(registerResponse).isNotNull();
+		Map todo = (Map) findResponse.getBody().getResult();
+		
+		assertThat(String.valueOf(todo.get("id"))).isEqualTo(String.valueOf(todoId));
+		assertThat(String.valueOf(todo.get("content"))).isEqualTo(content);
+	}
+	
+	@Test
+	public void whenModify_thenModifiedTodo() throws Exception {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		Map<String, String> map = new HashMap<>();
+		String content = "호텔 예약하기";
+		map.put("content", content);
+
+		HttpEntity<Map<String, String>> request = new HttpEntity<>(map, headers);
+
+		ResponseEntity<Result> registerResponse = restTemplate.postForEntity("/api/todo/", request, Result.class);
+		assertThat(registerResponse).isNotNull();
+		
+		Integer todoId = (Integer)registerResponse.getBody().getResult();
+		
+		ResponseEntity<Result> findResponse = restTemplate.getForEntity("/api/todo/find/"+todoId, Result.class);
+		assertThat(findResponse).isNotNull();
+		Map todo = (Map) findResponse.getBody().getResult();
+		
+		//put을 통해 값을 수정
+		String newContent = "영화 보기";
+		todo.put("content", newContent);
+		HttpEntity<Map<String, String>> modalRequest = new HttpEntity<>(todo, headers);
+		restTemplate.put("/api/todo/modal/", modalRequest);
+		
+		ResponseEntity<Result> findResponse2 = restTemplate.getForEntity("/api/todo/find/"+todoId, Result.class);
+		assertThat(findResponse2).isNotNull();
+		Map todo2 = (Map) findResponse2.getBody().getResult();
+		
+		assertThat(String.valueOf(todo2.get("id"))).isEqualTo(String.valueOf(todoId));
+		assertThat(String.valueOf(todo2.get("content"))).isEqualTo(newContent);
+	}
+	
+	@Test
+	public void whenRegisterTurnCompleteStat_thenCompYnToggledTodo() throws Exception {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		Map<String, String> map = new HashMap<>();
+		String content = "호텔 예약하기";
+		map.put("content", content);
+
+		HttpEntity<Map<String, String>> request = new HttpEntity<>(map, headers);
+
+		ResponseEntity<Result> registerResponse = restTemplate.postForEntity("/api/todo/", request, Result.class);
+		assertThat(registerResponse).isNotNull();
+		
+		Integer todoId = (Integer)registerResponse.getBody().getResult();
+		
+		//complte 값 Y로 전환
+		restTemplate.put("/api/todo/complete/"+todoId, null);
+		
+		ResponseEntity<Result> findResponse2 = restTemplate.getForEntity("/api/todo/find/"+todoId, Result.class);
+		assertThat(findResponse2).isNotNull();
+		Map todo2 = (Map) findResponse2.getBody().getResult();
+		
+		assertThat(String.valueOf(todo2.get("id"))).isEqualTo(String.valueOf(todoId));
+		assertThat(String.valueOf(todo2.get("compYn"))).isEqualTo("Y");
+		
+		
+		//complte 값 N으로 전환
+		restTemplate.put("/api/todo/cancel/"+todoId, null);
+		
+		ResponseEntity<Result> findResponse3 = restTemplate.getForEntity("/api/todo/find/"+todoId, Result.class);
+		assertThat(findResponse3).isNotNull();
+		Map todo3 = (Map) findResponse3.getBody().getResult();
+		
+		assertThat(String.valueOf(todo3.get("id"))).isEqualTo(String.valueOf(todoId));
+		assertThat(String.valueOf(todo3.get("compYn"))).isEqualTo("N");
+	}
 }

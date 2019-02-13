@@ -15,6 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.kakaopay.todolist.todolist.domain.RefTodoMap;
 import com.kakaopay.todolist.todolist.domain.Todo;
+import com.kakaopay.todolist.todolist.exception.NotExistTodoException;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -74,7 +75,7 @@ public class TodoServiceTest {
 		assertThat(resultTodo.getCompYn()).isEqualTo(modifyCompYn);
 	}
 	
-	@Test
+	@Test(expected = NotExistTodoException.class)
 	public void givenTodo_whenRemoveAndFind_thenReturnNull() throws Exception{
 		//given
 		Todo todo = new Todo();
@@ -152,32 +153,34 @@ public class TodoServiceTest {
 		assertThat(resultSize20.getSize()).isEqualTo(20);
 	}
 	
-	
 	@Test
 	public void whenRemoveAndRegister_thenReturnRefTodoList() throws Exception{
 		//when
+		//할일1 입력
 		Todo todo = new Todo();
 		todo.setContent("비행기 예약하기");
 		todo = todoService.register(todo);
 		
-		Todo todoR1 = new Todo();
-		todoR1.setContent("호텔 예약하기");
-		todoR1 = todoService.register(todoR1);
+		//할일2 입력시 1의 정보를 이용해 RefTodoMap을 구성해서 입력
+		Todo todo2 = new Todo();
+		todo2.setContent("호텔 예약하기");
 		
 		RefTodoMap refTodo1 = new RefTodoMap();
-		refTodo1.setRefTodoId(todoR1.getId());
+		refTodo1.setRefTodoId(todo.getId());
 		
 		List<RefTodoMap> refTodoList = new ArrayList<RefTodoMap>();
 		refTodoList.add(refTodo1);
-		refTodoMapService.registerSameTodoIdList(todo.getId(), refTodoList);
+		todo2.setRefTodoMapList(refTodoList);
 		
-		assertThat(todo).isNotNull();
-		assertThat(todo.getId()).isNotNull();
+		todo2 = todoService.register(todo2);
 		
-		List<RefTodoMap> resultSize1 = refTodoMapService.findByTodoId(todo.getId());
+		assertThat(todo2).isNotNull();
+		assertThat(todo2.getId()).isNotNull();
+		
+		List<RefTodoMap> resultSize1 = refTodoMapService.findByTodoId(todo2.getId());
 		assertThat(resultSize1.size()).isEqualTo(1);
 		
-		//RefTodo 목록 삭제 후 재입력
+		//할일1에 RefTodo 목록 입력
 		List<RefTodoMap> refTodoList2 = new ArrayList<RefTodoMap>();
 		for(int i=0; i<90; i++) {
 			Todo todoF = new Todo();
@@ -190,8 +193,9 @@ public class TodoServiceTest {
 			refTodoList2.add(refTodoF);
 		}
 		
-		refTodoMapService.registerSameTodoIdList(todo.getId(), refTodoList2);
-				
+		todo.setRefTodoMapList(refTodoList2);
+		todoService.modify(todo);
+		
 		//then
 		assertThat(todo).isNotNull();
 		assertThat(todo.getId()).isNotNull();
@@ -199,4 +203,5 @@ public class TodoServiceTest {
 		List<RefTodoMap> resultRefTodosSize90 = refTodoMapService.findByTodoId(todo.getId());
 		assertThat(resultRefTodosSize90.size()).isEqualTo(90);
 	}
+	
 }

@@ -11,6 +11,8 @@
 ### 1. 빌드 및 시작 
 ~~~
 gradle build && java -jar build/libs/todolist-0.0.1.jar
+
+※gradle, Lombok plugin 설치 상태에 주의
 ~~~
 ### 2. Swagger
 ~~~ 
@@ -85,32 +87,37 @@ http://localhost:8080/
 
 ## REST-API (http://localhost:8080/swagger)
 
-### 1. findAll : Todolist 조회
+### 1. find : Todo 조회
+~~~
+Method : GET 
+URL : /api/todo/find/{id}
+~~~
+### 2. findAll : Todolist 조회
 ~~~
 Method : GET 
 URL : /api/todo
 ~~~
-### 2. register : Todo 입력
+### 3. register : Todo 입력
 ~~~
 Method : POST
 URL : /api/todo
 ~~~
-### 3. cancel : Todo 완료 취소
+### 4. cancel : Todo 완료 취소
 ~~~
 Method : PUT
 URL : /api/todo/cancel/{id}
 ~~~
-### 4. complete : Todo 완료
+### 5. complete : Todo 완료
 ~~~
 Method : PUT
 URL : /api/todo/complete/{id}
 ~~~
-### 5. findByIdNotAndContentLike : autocomplete용 Todolist 조회
+### 6. findByIdNotAndContentLike : autocomplete용 Todolist 조회
 ~~~
 Method : GET
 URL : /api/todo/findByIdNotAndContentLike
 ~~~
-### 6. modifyModal : 전달된 Todo의 일부를 수정(content, refTodoMapList)
+### 7. modifyModal : 전달된 Todo의 일부를 수정(content, refTodoMapList)
 ~~~
 Method : PUT
 URL : /api/todo/modal/

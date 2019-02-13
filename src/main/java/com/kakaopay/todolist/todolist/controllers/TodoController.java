@@ -37,6 +37,21 @@ public class TodoController {
 		this.todoService = todoService;
 	}
 
+	@GetMapping("/find/{id}")
+	public Result<Todo> find(@PathVariable Long id) {
+		log.info("find : " + id);
+		
+		Result<Todo> result = new Result<>();
+		Todo todo = todoService.find(id);
+		if(todo == null) {
+			throw new NotExistTodoException(id);
+		}else {
+			result.setResult(todo);
+		}
+		
+		return result;
+	}
+	
 	@GetMapping
 	public Result<Page<Todo>> findAll(@PageableDefault(size=10, sort="id",direction = Sort.Direction.DESC) Pageable pageable) {
 		log.info("findAll");
