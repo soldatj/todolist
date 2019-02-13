@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.kakaopay.todolist.todolist.domain.RefTodoMap;
 import com.kakaopay.todolist.todolist.domain.Todo;
 import com.kakaopay.todolist.todolist.exception.ExistNotCompleteRefTodoException;
+import com.kakaopay.todolist.todolist.exception.NotExistTodoException;
+import com.kakaopay.todolist.todolist.exception.NotExistTodoRefDataException;
 import com.kakaopay.todolist.todolist.repository.TodoRepository;
 import com.kakaopay.todolist.todolist.services.RefTodoMapService;
 import com.kakaopay.todolist.todolist.services.TodoService;
@@ -27,30 +29,11 @@ public class TodoServiceImpl implements TodoService {
 	public Todo find(Long id) {
 		Todo todo =  todoRepository.findById(id).orElse(null);
 		
-		if(todo != null) {
-			//참조 데이터 테이블을 조회
-			List<RefTodoMap> refDataList = refTodoMapService.findAllByTodoId(id);
-			
-			//content의 뒤쪽으로 "방청소 @1 @3" 형태와 같이 RefTodo의 id를 기록하기 위한 SB
-			StringBuffer contentAndRefTodoId = new StringBuffer();
-			contentAndRefTodoId.append(todo.getContent());
-			
-			List<Todo> refTodoList = new ArrayList<Todo>();
-			
-			if(refDataList != null) {
-				//참조 데이터 테이블 정보를 바탕으로 참조 Todo 리스트를 조회
-				for(RefTodoMap refTodo : refDataList) {
-					Long refTodoId = refTodo.getRefTodoId();
-					
-					Todo refDtlTodo =  todoRepository.findById(refTodoId).orElse(null);
-					contentAndRefTodoId.append(" ").append("@").append(refDtlTodo.getId());
-					refTodoList.add(refDtlTodo);
-				}
-			}
-			
-			todo.setRefTodoList(refTodoList);
-			todo.setContentAndRefTodoId(contentAndRefTodoId.toString());
+		if(id == null || todo == null) {
+			throw new NotExistTodoException(id);
 		}
+		
+		setTodoRefTodoIds(todo);
 		
 		return todo;
 	}
@@ -61,10 +44,16 @@ public class TodoServiceImpl implements TodoService {
 		
 		return todoRepository.findByIdNotAndContentLike(id, contentLikeStr);
 	}
-
+	
 	@Override
 	public Page<Todo> findAll(Pageable pageable) {
-		return todoRepository.findAll(pageable);
+		Page<Todo> page = todoRepository.findAll(pageable);
+		
+		for(Todo todo : page) {
+			setTodoRefTodoIds(todo);
+		}
+		
+		return page;
 	}
 
 	@Override
@@ -112,7 +101,7 @@ public class TodoServiceImpl implements TodoService {
 		Todo todo =  todoRepository.findById(id).orElse(null);
 		
 		//완료 상태로 전환시에 참조 할일들이 완료상태인지 체크
-		if("N".equals(compYn)) {
+		if("Y".equals(compYn)) {
 			validNotExistsNotCompleteRefTodos(id);
 		}
 		
@@ -124,6 +113,47 @@ public class TodoServiceImpl implements TodoService {
 		}
 		
 		return result;
+	}
+	
+	public Todo setTodoRefTodoIds(Todo todo) {
+		Long id = todo.getId();
+		
+		//content의 뒤쪽으로 "방청소 @1 @3" 형태와 같이 RefTodo의 id를 기록하기 위한 SB
+		StringBuffer sbContentAndRefTodoIds = new StringBuffer();
+		sbContentAndRefTodoIds.append(todo.getContent());
+		
+		//"1, 3"과 같이 RefTodo의 id를 기록하기 위한 SB
+		StringBuffer sbRefTodoIds = new StringBuffer();
+		
+		if(todo != null) {
+			//참조 데이터 테이블을 조회
+			List<RefTodoMap> refDataList = refTodoMapService.findAllByTodoId(id);
+			
+			List<Todo> refTodoList = new ArrayList<Todo>();
+			
+			if(refDataList != null) {
+				//참조 데이터 테이블 정보를 바탕으로 참조 Todo 리스트를 조회
+				for(RefTodoMap refTodo : refDataList) {
+					Long refTodoId = refTodo.getRefTodoId();
+					
+					Todo refDtlTodo = todoRepository.findById(refTodoId).orElse(null);
+					
+					if(refTodoId == null || refDtlTodo == null) {
+						throw new NotExistTodoRefDataException(refTodoId);
+					}
+					
+					sbContentAndRefTodoIds.append(" ").append("@").append(refDtlTodo.getId());
+					sbRefTodoIds.append(refDtlTodo.getId()).append(",");
+					refTodoList.add(refDtlTodo);
+				}
+			}
+			
+			todo.setRefTodoList(refTodoList);
+		}
+		todo.setContentAndRefTodoIds(sbContentAndRefTodoIds.toString());
+		todo.setRefTodoIds(sbRefTodoIds.toString());
+		
+		return todo;
 	}
 	
 	public void validNotExistsNotCompleteRefTodos(Long id) {

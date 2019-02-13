@@ -103,6 +103,7 @@ public class TodoController {
 			List<RefTodoMap> refTodoList = todoRequest.getRefTodoList();
 			
 			if(refTodoList!=null && !refTodoList.isEmpty()) {
+				//TODO 롤백이 따로 되지 않음..
 				refTodoMapService.registerSameTodoIdList(returnTodo.getId(), refTodoList);
 			}
 			

@@ -35,12 +35,14 @@ public class RefTodoMapServiceImpl implements RefTodoMapService {
 			removeByTodoId(todoId);
 			
 			for(RefTodoMap refData : refTodoList) {
+				Long refTodoId = refData.getRefTodoId();
+				
 				Todo refTodo = todoService.find(refData.getRefTodoId());
 				
 				//TODO Exception 생성 및 캐치
 				//존재하지않는 Todo 데이터가 입력되는 경우 처리
-				if(refTodo == null) {
-					throw new NotExistTodoRefDataException();
+				if(refTodoId == null || refTodo == null) {
+					throw new NotExistTodoRefDataException(refTodoId);
 				}
 				
 				refData.setTodoId(todoId);

@@ -67,7 +67,7 @@ var todo = {
 			},
 			columns: [
 				{data: "id"},
-				{data: "content"},
+				{data: "contentAndRefTodoIds"},
 				{data: "insDtm"},
 				{data: "updDtm"},
 				{
@@ -99,20 +99,31 @@ var todo = {
 					"className": "text-center",
 					"width": "70px",
 					"render": function ( data, type, row, meta ) {
-						var btnModCompY = "<button class='btn btn-success' onclick='todo.doComplete("+row.id+")'>완료</button>";
-						var btnModCompN = "<button class='btn btn-success' onclick='todo.doCancel("+row.id+")'>취소</button>";
+						var btnModCompY = "<button class='btn btn-success' onclick='todo.doComplete("+row.id+")'>미완료</button>";
+						var btnModCompN = "<button class='btn btn-primary' onclick='todo.doCancel("+row.id+")'>완료</button>";
 						
 						return data=="N" ? btnModCompY : btnModCompN;
 					}
 			} ]
 		});
 	},
-	
+	    
 	initInput : function(){
 		//init AutoComplete
-		$( "#ipt_acTodoList" ).autocomplete({
+		$( "#ipt_acTodoList" ).on( "keydown", function( event ) {
+	        if ( event.keyCode === $.ui.keyCode.TAB &&
+	                $( this ).autocomplete( "instance" ).menu.active ) {
+	              event.preventDefault();
+	            }
+	          })
+	        .autocomplete({
 			source: function( request, response ) {
-				var contentStr = $("#ipt_acTodoList").val();
+				var contentStr = todo.extractLast($("#ipt_acTodoList").val());
+				
+				//2글자 부터 검색
+				if(contentStr.length < 2){
+					return;
+				}
 				
 				var param = {
 					content : contentStr
@@ -133,9 +144,24 @@ var todo = {
 				});
 				
 			},
+	        focus: function() {
+	            // prevent value inserted on focus
+	            return false;
+	          },
 			minLength: 2,
 			select: function( event, ui ) {
 				console.log( "Selected: " + ui.item.id + " aka " + ui.item.content );
+				
+				var terms = todo.split( this.value );
+	          // remove the current input
+	          terms.pop();
+	          // add the selected item
+	          terms.push( ui.item.value );
+	          // add placeholder to get the comma-and-space at the end
+	          terms.push( "" );
+	          this.value = terms.join( ", " );
+	          
+	          return false;
 			}
 		});
 		
@@ -144,7 +170,7 @@ var todo = {
 			$("#ipt_acTodoList").autocomplete("option", "appendTo", "#todoFormModal") 
 		});
 	},
-	
+	todoFormModalMode : "N",
 	initEventListener : function(){
 		$('#todoForm').submit(function(e){
 			e.preventDefault();
@@ -152,31 +178,77 @@ var todo = {
 				return false;
 			}
 			
-			var content = $('#ipt_content').val();
-
-			var param = {
-				todo: {
-					content:content
-				},
-				refTodoList: []
-			};
-
-			todoApi.register(param, function(message, response){
-				if (message != null) {
-					alert("등록에 실패하였습니다."
-						+ "\nCODE : " + response.errorCode
-						+ "\nmessage : " + message);
-					return false;
+			if(todo.todoFormModalMode == "N"){
+				//신규 저장
+				var content = $('#ipt_content').val();
+				
+				var refTodoIdArray = $("#ipt_acTodoList").val().split(",");
+				var refTodoMapArray = [];
+				if(refTodoIdArray){
+					for(var idx=0; refTodoIdArray.length > idx; idx++){
+						var refTodoId = jQuery.trim(refTodoIdArray[idx]);
+						
+						if(refTodoId!=undefined && refTodoId!=null && refTodoId!=""){
+							var reftodoMap = {
+								todoId : "",
+								refTodoId : refTodoId
+							};
+							
+							refTodoMapArray.push(reftodoMap);
+						}else{
+							continue;
+						}
+						
+						if(!$.isNumeric(refTodoId)){
+							alert("["+refTodoId+"] 잘못된 참조 할일 ID가 존재합니다.")
+							return false;
+						}
+					}
 				}
-				todo.doFindAll();
-			});
+				
+				var param = {
+					todo: {
+						content:content
+					},
+					refTodoList: refTodoMapArray
+				};
+
+				todoApi.register(param, function(message, response){
+					if (message != null) {
+						alert("등록에 실패하였습니다."
+							+ "\nCODE : " + response.errorCode
+							+ "\nmessage : " + message);
+						return false;
+					}
+					todo.doFindAll();
+					
+					todo.resetTodoFormModalInputs();
+				});
+			}else{
+				//업데이트
+				
+			}
 		});
 
 //		$('#todoTable tbody').on( 'click', 'button', function () {
 //			var data = table.row( $(this).parents('tr') ).data();
 //			alert( data[0] +"'s salary is: "+ data[ 2 ] );
 //		} );
-	}
+	},
+	
+	resetTodoFormModalInputs : function(){
+		$("#hdn_id").val("");
+		$("#ipt_content").val("");
+		$("#ipt_acTodoList").val("");
+	},
+	
+	split : function( val ){
+		return val.split( /,\s*/ );
+	},
+	
+	extractLast : function( term ){
+		return todo.split( term ).pop();
+	},
 };
 
 //초기화

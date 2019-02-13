@@ -59,7 +59,11 @@ public class Todo {
 	
 	@Transient 
 	@ApiModelProperty(hidden= true)
-	private String contentAndRefTodoId;
+	private String contentAndRefTodoIds;
+	
+	@Transient 
+	@ApiModelProperty(hidden= true)
+	private String refTodoIds;
 	
 	@Transient 
 	@ApiModelProperty(hidden= true)

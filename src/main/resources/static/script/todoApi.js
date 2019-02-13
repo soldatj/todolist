@@ -11,7 +11,9 @@ var todoApi = {
 		}).then(function(response){
 			callback(null, response);
 		}).catch(function(response){
-			callback(response.message, response);
+			var responseJSON = response.responseJSON;
+			var message = responseJSON.message;
+			callback(message, responseJSON);
 		});
 	},
 	
@@ -25,7 +27,9 @@ var todoApi = {
 		}).then(function(response){
 			callback(null, response);
 		}).catch(function(response){
-			callback(response.message, response);
+			var responseJSON = response.responseJSON;
+			var message = responseJSON.message;
+			callback(message, responseJSON);
 		});
 	},
 	
@@ -39,7 +43,9 @@ var todoApi = {
 		}).then(function(response){
 			callback(null, response);
 		}).catch(function(response){
-			callback(response.message, response);
+			var responseJSON = response.responseJSON;
+			var message = responseJSON.message;
+			callback(message, responseJSON);
 		});
 	},
 
@@ -53,7 +59,9 @@ var todoApi = {
 		}).then(function(response){
 			callback(null, response);
 		}).catch(function(response){
-			callback(response.message, response);
+			var responseJSON = response.responseJSON;
+			var message = responseJSON.message;
+			callback(message, responseJSON);
 		});
 	},
 	
@@ -67,7 +75,9 @@ var todoApi = {
 		}).then(function(response){
 			callback(null, response);
 		}).catch(function(response){
-			callback(response.message, response);
+			var responseJSON = response.responseJSON;
+			var message = responseJSON.message;
+			callback(message, responseJSON);
 		});
 	},
 	
@@ -80,7 +90,9 @@ var todoApi = {
 		}).then(function(response){
 			callback(null, response);
 		}).catch(function(response){
-			callback(response.message, response);
+			var responseJSON = response.responseJSON;
+			var message = responseJSON.message;
+			callback(message, responseJSON);
 		});
 	},
 	
@@ -93,7 +105,9 @@ var todoApi = {
 		}).then(function(response){
 			callback(null, response);
 		}).catch(function(response){
-			callback(response.message, response);
+			var responseJSON = response.responseJSON;
+			var message = responseJSON.message;
+			callback(message, responseJSON);
 		});
 	},
 }
