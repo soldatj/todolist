@@ -1,24 +1,24 @@
 var todo = {
 	doComplete : function(todoId){
 		todoApi.complete(todoId,
-				function (message, response) {
-					if (message != null) {
-						alert(message);
-						return false;
-					}
-					todo.doFindAll();
-				});
+			function (message, response) {
+				if (message != null) {
+					alert(message);
+					return false;
+				}
+				todo.doFindAll();
+			});
 	},
 	
 	doCancel : function(todoId){
 		todoApi.cancel(todoId,
-				function (message, response) {
-					if (message != null) {
-						alert(message);
-						return false;
-					}
-					todo.doFindAll();
-				});
+			function (message, response) {
+				if (message != null) {
+					alert(message);
+					return false;
+				}
+				todo.doFindAll();
+			});
 	},
 	
 	doFindAll : function(){
@@ -80,9 +80,9 @@ var todo = {
 					"targets": 0,
 					"width": "50px",
 					"className": "text-center",
-				    "render": function ( data, type, full, meta ) {
+					"render": function ( data, type, full, meta ) {
 						return '<a href="#">'+data+'</a>';
-				    }
+					}
 				},
 				{
 					"targets": 2,
@@ -107,16 +107,16 @@ var todo = {
 			} ]
 		});
 	},
-	    
+		
 	initInput : function(){
-		//init AutoComplete
+		//init 참조 입력창 AutoComplete
 		$( "#ipt_acTodoList" ).on( "keydown", function( event ) {
-	        if ( event.keyCode === $.ui.keyCode.TAB &&
-	                $( this ).autocomplete( "instance" ).menu.active ) {
-	              event.preventDefault();
-	            }
-	          })
-	        .autocomplete({
+			if ( event.keyCode === $.ui.keyCode.TAB &&
+					$( this ).autocomplete( "instance" ).menu.active ) {
+				event.preventDefault();
+				}
+			})
+			.autocomplete({
 			source: function( request, response ) {
 				var contentStr = todo.extractLast($("#ipt_acTodoList").val());
 				
@@ -134,8 +134,10 @@ var todo = {
 						var TodoMap = data.result;
 						response(
 							$.map(TodoMap, function(item) {
+								var label = "["+item.id+"] "+item.content;
+								
 								return {
-									label: item.content,
+									label: label,
 									value: item.id
 								}
 							})
@@ -144,24 +146,19 @@ var todo = {
 				});
 				
 			},
-	        focus: function() {
-	            // prevent value inserted on focus
-	            return false;
-	          },
+			focus: function() {
+				return false;
+			},
 			minLength: 2,
 			select: function( event, ui ) {
-				console.log( "Selected: " + ui.item.id + " aka " + ui.item.content );
-				
 				var terms = todo.split( this.value );
-	          // remove the current input
-	          terms.pop();
-	          // add the selected item
-	          terms.push( ui.item.value );
-	          // add placeholder to get the comma-and-space at the end
-	          terms.push( "" );
-	          this.value = terms.join( ", " );
-	          
-	          return false;
+				terms.pop();
+				terms.push( ui.item.value );
+				terms.push( "" );
+				
+				this.value = terms.join( ", " );
+				
+				return false;
 			}
 		});
 		
@@ -170,7 +167,9 @@ var todo = {
 			$("#ipt_acTodoList").autocomplete("option", "appendTo", "#todoFormModal") 
 		});
 	},
+	
 	todoFormModalMode : "N",
+	
 	initEventListener : function(){
 		$('#todoForm').submit(function(e){
 			e.preventDefault();
@@ -183,7 +182,7 @@ var todo = {
 				var content = $('#ipt_content').val();
 				
 				var refTodoIdArray = $("#ipt_acTodoList").val().split(",");
-				var refTodoMapArray = [];
+				var refTodoMapList = [];
 				if(refTodoIdArray){
 					for(var idx=0; refTodoIdArray.length > idx; idx++){
 						var refTodoId = jQuery.trim(refTodoIdArray[idx]);
@@ -194,7 +193,7 @@ var todo = {
 								refTodoId : refTodoId
 							};
 							
-							refTodoMapArray.push(reftodoMap);
+							refTodoMapList.push(reftodoMap);
 						}else{
 							continue;
 						}
@@ -207,10 +206,8 @@ var todo = {
 				}
 				
 				var param = {
-					todo: {
-						content:content
-					},
-					refTodoList: refTodoMapArray
+					content:content,
+					refTodoMapList: refTodoMapList
 				};
 
 				todoApi.register(param, function(message, response){
@@ -227,6 +224,50 @@ var todo = {
 			}else{
 				//업데이트
 				
+				var id = $('#hdn_id').val();
+				
+				var content = $('#ipt_content').val();
+				
+				var refTodoIdArray = $("#ipt_acTodoList").val().split(",");
+				var refTodoMapList = [];
+				if(refTodoIdArray){
+					for(var idx=0; refTodoIdArray.length > idx; idx++){
+						var refTodoId = jQuery.trim(refTodoIdArray[idx]);
+						
+						if(refTodoId!=undefined && refTodoId!=null && refTodoId!=""){
+							var reftodoMap = {
+								todoId : "",
+								refTodoId : refTodoId
+							};
+							
+							refTodoMapList.push(reftodoMap);
+						}else{
+							continue;
+						}
+						
+						if(!$.isNumeric(refTodoId)){
+							alert("["+refTodoId+"] 잘못된 참조 할일 ID가 존재합니다.")
+							return false;
+						}
+					}
+				}
+				
+				var param = {
+					content:content,
+					refTodoMapList: refTodoMapList
+				};
+
+				todoApi.register(param, function(message, response){
+					if (message != null) {
+						alert("등록에 실패하였습니다."
+							+ "\nCODE : " + response.errorCode
+							+ "\nmessage : " + message);
+						return false;
+					}
+					todo.doFindAll();
+					
+					todo.resetTodoFormModalInputs();
+				});
 			}
 		});
 

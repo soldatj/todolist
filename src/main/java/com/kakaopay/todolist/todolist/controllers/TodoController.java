@@ -18,10 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kakaopay.todolist.todolist.domain.RefTodoMap;
 import com.kakaopay.todolist.todolist.domain.Result;
 import com.kakaopay.todolist.todolist.domain.Todo;
-import com.kakaopay.todolist.todolist.domain.TodoRequest;
 import com.kakaopay.todolist.todolist.services.RefTodoMapService;
 import com.kakaopay.todolist.todolist.services.TodoService;
 
@@ -90,23 +88,16 @@ public class TodoController {
 	}
 	
 	@PostMapping
-	public Result<Long> register(@RequestBody TodoRequest todoRequest) {
-		log.info("register : " + todoRequest);
+	public Result<Long> register(@RequestBody Todo todo) {
+		log.info("register : " + todo);
 		
 		Result<Long> result = new Result<Long>();
-		Todo returnTodo = todoService.register(todoRequest.getTodo());
+		Todo returnTodo = todoService.register(todo);
 		
 		if(returnTodo == null) {
 			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
 			result.setErrorMessage("Already Exists");
 		}else {
-			List<RefTodoMap> refTodoList = todoRequest.getRefTodoList();
-			
-			if(refTodoList!=null && !refTodoList.isEmpty()) {
-				//TODO 롤백이 따로 되지 않음..
-				refTodoMapService.registerSameTodoIdList(returnTodo.getId(), refTodoList);
-			}
-			
 			result.setResult(returnTodo.getId());
 		}
 		
@@ -114,22 +105,16 @@ public class TodoController {
 	}
 	
 	@PutMapping
-	public Result<Long> modify(@RequestBody TodoRequest todoRequest) {
-		log.info("modify : " + todoRequest);
+	public Result<Long> modify(@RequestBody Todo todo) {
+		log.info("modify : " + todo);
 		
 		Result<Long> result = new Result<Long>();
-		Todo returnTodo = todoService.modify(todoRequest.getTodo());
+		Todo returnTodo = todoService.modify(todo);
 		
 		if(returnTodo == null) {
 			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
 			result.setErrorMessage("Not Found");
 		}else {
-			List<RefTodoMap> refTodoList = todoRequest.getRefTodoList();
-			
-			if(refTodoList!=null && !refTodoList.isEmpty()) {
-				refTodoMapService.registerSameTodoIdList(returnTodo.getId(), refTodoList);
-			}
-			
 			result.setResult(returnTodo.getId());
 		}
 		

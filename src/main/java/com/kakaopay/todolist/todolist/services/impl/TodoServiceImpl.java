@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.kakaopay.todolist.todolist.domain.RefTodoMap;
 import com.kakaopay.todolist.todolist.domain.Todo;
@@ -18,6 +19,7 @@ import com.kakaopay.todolist.todolist.services.RefTodoMapService;
 import com.kakaopay.todolist.todolist.services.TodoService;
 
 @Service
+@Transactional
 public class TodoServiceImpl implements TodoService {
 	@Autowired
 	private RefTodoMapService refTodoMapService;
@@ -58,18 +60,32 @@ public class TodoServiceImpl implements TodoService {
 
 	@Override
 	public Todo register(Todo todo) {
-		return todoRepository.save(todo);
+		Todo returnTodo = todoRepository.save(todo);
+		
+		if(returnTodo != null) {
+			List<RefTodoMap> refTodoList = todo.getRefTodoMapList();
+			
+			if(refTodoList!=null && !refTodoList.isEmpty()) {
+				refTodoMapService.registerSameTodoIdList(returnTodo.getId(), refTodoList);
+			}
+		}
+		
+		return returnTodo;
 	}
 
 	@Override
 	public Todo modify(Todo todo) {
-		Todo result = find(todo.getId());
+		Todo returnTodo = todoRepository.save(todo);
 		
-		if(result == null) {
-			return null;
+		if(returnTodo != null) {
+			List<RefTodoMap> refTodoList = todo.getRefTodoMapList();
+			
+			if(refTodoList!=null && !refTodoList.isEmpty()) {
+				refTodoMapService.registerSameTodoIdList(returnTodo.getId(), refTodoList);
+			}
 		}
 		
-		return todoRepository.save(todo);
+		return returnTodo;
 	}
 
 	@Override
@@ -129,8 +145,6 @@ public class TodoServiceImpl implements TodoService {
 			//참조 데이터 테이블을 조회
 			List<RefTodoMap> refDataList = refTodoMapService.findAllByTodoId(id);
 			
-			List<Todo> refTodoList = new ArrayList<Todo>();
-			
 			if(refDataList != null) {
 				//참조 데이터 테이블 정보를 바탕으로 참조 Todo 리스트를 조회
 				for(RefTodoMap refTodo : refDataList) {
@@ -144,11 +158,10 @@ public class TodoServiceImpl implements TodoService {
 					
 					sbContentAndRefTodoIds.append(" ").append("@").append(refDtlTodo.getId());
 					sbRefTodoIds.append(refDtlTodo.getId()).append(",");
-					refTodoList.add(refDtlTodo);
 				}
 			}
 			
-			todo.setRefTodoList(refTodoList);
+			todo.setRefTodoMapList(refDataList);
 		}
 		todo.setContentAndRefTodoIds(sbContentAndRefTodoIds.toString());
 		todo.setRefTodoIds(sbRefTodoIds.toString());

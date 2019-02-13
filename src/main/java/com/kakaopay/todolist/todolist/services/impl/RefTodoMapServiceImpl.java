@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.kakaopay.todolist.todolist.domain.RefTodoMap;
 import com.kakaopay.todolist.todolist.domain.Todo;
@@ -14,6 +15,7 @@ import com.kakaopay.todolist.todolist.services.RefTodoMapService;
 import com.kakaopay.todolist.todolist.services.TodoService;
 
 @Service
+@Transactional
 public class RefTodoMapServiceImpl implements RefTodoMapService {
 	@Autowired
 	private TodoService todoService;
@@ -27,7 +29,8 @@ public class RefTodoMapServiceImpl implements RefTodoMapService {
 	}
 	
 	@Override
-	public List<RefTodoMap> registerSameTodoIdList(Long todoId, List<RefTodoMap> refTodoList) {
+	
+	public List<RefTodoMap> registerSameTodoIdList(Long todoId, List<RefTodoMap> refTodoList){
 		List<RefTodoMap> returnList = new ArrayList<RefTodoMap>();
 		
 		if(refTodoList!=null && !refTodoList.isEmpty()) {
@@ -60,8 +63,4 @@ public class RefTodoMapServiceImpl implements RefTodoMapService {
 		refTodoRepository.removeByTodoId(id);
 	}
 	
-	public void validExistsRefDataTodos() {
-		
-	}
-
 }
