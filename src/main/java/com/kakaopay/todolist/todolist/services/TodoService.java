@@ -17,6 +17,8 @@ public interface TodoService {
 	public Todo register(Todo todo);
 	
 	public Todo modify(Todo todo);
+	
+	public Todo modifyModal(Todo todo);
 
 	public Todo modifyCompYn(Long id, String compYn);
 	

@@ -88,6 +88,25 @@ public class TodoServiceImpl implements TodoService {
 		
 		return returnTodo;
 	}
+	
+	@Override
+	public Todo modifyModal(Todo todo) {
+		Todo findTodo = find(todo.getId());
+		findTodo.setContent(todo.getContent());
+		findTodo.setRefTodoMapList(todo.getRefTodoMapList());
+		
+		Todo returnTodo = todoRepository.save(findTodo);
+		
+		if(returnTodo != null) {
+			List<RefTodoMap> refTodoList = findTodo.getRefTodoMapList();
+			
+			if(refTodoList!=null && !refTodoList.isEmpty()) {
+				refTodoMapService.registerSameTodoIdList(returnTodo.getId(), refTodoList);
+			}
+		}
+		
+		return returnTodo;
+	}
 
 	@Override
 	public void remove(Long id) {

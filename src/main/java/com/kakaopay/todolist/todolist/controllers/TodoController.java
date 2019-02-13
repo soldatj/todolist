@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,22 +36,7 @@ public class TodoController {
 	public TodoController(TodoService todoService) {
 		this.todoService = todoService;
 	}
-	
-	@GetMapping("/find/{id}")
-	public Result<Todo> find(@PathVariable Long id) {
-		log.info("find : " + id);
-		
-		Result<Todo> result = new Result<>();
-		Todo todo = todoService.find(id);
-		if(todo == null) {
-			throw new NotExistTodoException(id);
-		}else {
-			result.setResult(todo);
-		}
-		
-		return result;
-	}
-	
+
 	@GetMapping
 	public Result<Page<Todo>> findAll(@PageableDefault(size=10, sort="id",direction = Sort.Direction.DESC) Pageable pageable) {
 		log.info("findAll");
@@ -82,12 +66,13 @@ public class TodoController {
 		return result;
 	}
 	
-	@PutMapping
-	public Result<Long> modify(@RequestBody Todo todo) {
+	//Todo 원본을 조회해 모달창으로 입력된 수정사항만 수정(content, refTodoMapList)
+	@PutMapping(value = "/modal/")
+	public Result<Long> modifyModal(@RequestBody Todo todo) {
 		log.info("modify : " + todo);
 		
 		Result<Long> result = new Result<Long>();
-		Todo returnTodo = todoService.modify(todo);
+		Todo returnTodo = todoService.modifyModal(todo);
 		
 		if(returnTodo == null) {
 			throw new NotExistTodoException(todo.getId());
@@ -98,6 +83,7 @@ public class TodoController {
 		return result;
 	}
 	
+	//완료 상태로 상태 수정
 	@PutMapping(value = "/complete/{id}")
 	public Result<Long> complete(@PathVariable Long id) {
 		log.info("complate : " + id);
@@ -114,6 +100,7 @@ public class TodoController {
 		return result;
 	}
 	
+	//완료 취소 상태로 상태 수정
 	@PutMapping(value = "/cancel/{id}")
 	public Result<Long> cancel(@PathVariable Long id) {
 		log.info("cancel : " + id);
@@ -130,6 +117,7 @@ public class TodoController {
 		return result;
 	}
 	
+	//Todo 중 검색 id가 포함되있지 않고 컨텐트 전후방 라이크 검색
 	@GetMapping(value = "/findByIdNotAndContentLike")
 	public Result<List<Todo>> findByIdNotAndContentLike(@RequestParam(value = "id", defaultValue = "-1")Long id,
 			@RequestParam(value = "content", defaultValue = "") String content ) {

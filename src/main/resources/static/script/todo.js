@@ -1,30 +1,7 @@
 var todo = {
-	doComplete : function(todoId){
-		todoApi.complete(todoId,
-			function (message, response) {
-				if (message != null) {
-					alert(message);
-					return false;
-				}
-				todo.doFindAll();
-			});
-	},
-	
-	doCancel : function(todoId){
-		todoApi.cancel(todoId,
-			function (message, response) {
-				if (message != null) {
-					alert(message);
-					return false;
-				}
-				todo.doFindAll();
-			});
-	},
-	
-	doFindAll : function(){
-		$('#todoTable').DataTable().ajax.reload(null, false);
-	},
-	
+	//모달창 모드 : 입력 - R, 수정 - M
+	todoFormModalMode : "R",
+	//테이블 초기화
 	initTable : function(){
 		var table = $('#todoTable').DataTable({
 			processing: true,
@@ -80,8 +57,8 @@ var todo = {
 					"targets": 0,
 					"width": "50px",
 					"className": "text-center",
-					"render": function ( data, type, full, meta ) {
-						return '<a href="#">'+data+'</a>';
+					"render": function ( data, type, row, meta ) {
+						return "<a href='#' onclick='todo.doModifyTodoFormModal("+meta.row+")'>"+data+"</a>";
 					}
 				},
 				{
@@ -97,7 +74,7 @@ var todo = {
 				{
 					"targets": 4,
 					"className": "text-center",
-					"width": "70px",
+					"width": "90px",
 					"render": function ( data, type, row, meta ) {
 						var btnModCompY = "<button class='btn btn-success' onclick='todo.doComplete("+row.id+")'>미완료</button>";
 						var btnModCompN = "<button class='btn btn-primary' onclick='todo.doCancel("+row.id+")'>완료</button>";
@@ -107,69 +84,75 @@ var todo = {
 			} ]
 		});
 	},
-		
+	
+	//인풋창 초기화
 	initInput : function(){
 		//init 참조 입력창 AutoComplete
-		$( "#ipt_acTodoList" ).on( "keydown", function( event ) {
+		$( "#ipt_refTodoIds" ).on( "keydown", function( event ) {
 			if ( event.keyCode === $.ui.keyCode.TAB &&
 					$( this ).autocomplete( "instance" ).menu.active ) {
 				event.preventDefault();
 				}
 			})
 			.autocomplete({
-			source: function( request, response ) {
-				var contentStr = todo.extractLast($("#ipt_acTodoList").val());
-				
-				//2글자 부터 검색
-				if(contentStr.length < 2){
-					return;
-				}
-				
-				var param = {
-					content : contentStr
-				};
-				
-				todoApi.findByIdNotAndContentLike(param, function(message, data){
-					if(data && data.errorCode == "200" && data.result){
-						var TodoMap = data.result;
-						response(
-							$.map(TodoMap, function(item) {
-								var label = "["+item.id+"] "+item.content;
-								
-								return {
-									label: label,
-									value: item.id
-								}
-							})
-						);
+				source: function( request, response ) {
+					var id = $("#ipt_id").val();
+					var contentStr = todo.extractLast($("#ipt_refTodoIds").val());
+					
+					//2글자 부터 검색
+					if(contentStr.length < 2){
+						return;
 					}
-				});
+					
+					var param = {
+						content : contentStr
+					};
+					
+					//수정모드일때는 autocomplete 대상에서 자신을 제외
+					if(id){
+						param["id"] = id;
+					}
 				
-			},
-			focus: function() {
-				return false;
-			},
-			minLength: 2,
-			select: function( event, ui ) {
-				var terms = todo.split( this.value );
-				terms.pop();
-				terms.push( ui.item.value );
-				terms.push( "" );
+					todoApi.findByIdNotAndContentLike(param, function(message, data){
+						if(data && data.errorCode == "200" && data.result){
+							var TodoMap = data.result;
+							response(
+								$.map(TodoMap, function(item) {
+									var label = "["+item.id+"] "+item.content;
+									
+									return {
+										label: label,
+										value: item.id
+									}
+								})
+							);
+						}
+					});
 				
-				this.value = terms.join( ", " );
-				
-				return false;
-			}
-		});
+				},
+				focus: function() {
+					return false;
+				},
+				minLength: 2,
+				select: function( event, ui ) {
+					var terms = todo.split( this.value );
+					terms.pop();
+					terms.push( ui.item.value );
+					terms.push( "" );
+					
+					this.value = terms.join( ", " );
+					
+					return false;
+				}
+			});
 		
 		//Modal 오픈시 autocomplate 영역조절
 		$("#todoFormModal").on("shown.bs.modal", function() { 
-			$("#ipt_acTodoList").autocomplete("option", "appendTo", "#todoFormModal") 
+			$("#ipt_refTodoIds").autocomplete("option", "appendTo", "#todoFormModal") 
 		});
 	},
 	
-	todoFormModalMode : "N",
-	
+	//이벤트리스너 지정
 	initEventListener : function(){
 		$('#todoForm').submit(function(e){
 			e.preventDefault();
@@ -177,11 +160,11 @@ var todo = {
 				return false;
 			}
 			
-			if(todo.todoFormModalMode == "N"){
+			if(todo.todoFormModalMode == "R"){
 				//신규 저장
 				var content = $('#ipt_content').val();
 				
-				var refTodoIdArray = $("#ipt_acTodoList").val().split(",");
+				var refTodoIdArray = $("#ipt_refTodoIds").val().split(",");
 				var refTodoMapList = [];
 				if(refTodoIdArray){
 					for(var idx=0; refTodoIdArray.length > idx; idx++){
@@ -218,19 +201,16 @@ var todo = {
 						return false;
 					}
 					todo.doFindAll();
-					
 					todo.resetTodoFormModalInputs();
-					
 					todo.closeTodoFormModal();
 				});
 			}else{
 				//업데이트
-				
-				var id = $('#hdn_id').val();
-				
+				var id = $('#ipt_id').val();
 				var content = $('#ipt_content').val();
+				var compYn = $('#ipt_compYn').val();
 				
-				var refTodoIdArray = $("#ipt_acTodoList").val().split(",");
+				var refTodoIdArray = $("#ipt_refTodoIds").val().split(",");
 				var refTodoMapList = [];
 				if(refTodoIdArray){
 					for(var idx=0; refTodoIdArray.length > idx; idx++){
@@ -238,7 +218,7 @@ var todo = {
 						
 						if(refTodoId!=undefined && refTodoId!=null && refTodoId!=""){
 							var reftodoMap = {
-								todoId : "",
+								todoId : id,
 								refTodoId : refTodoId
 							};
 							
@@ -247,47 +227,123 @@ var todo = {
 							continue;
 						}
 						
+						//자기 자신이 포함되있으면 예외
+						if(id == refTodoId){
+							alert("등록에 실패하였습니다."
+								+ "\nmessage : ["+refTodoId+"] 참조에는 해당 할일이 포함될 수 없습니다.")
+							return false;
+						}
+						
 						if(!$.isNumeric(refTodoId)){
-							alert("["+refTodoId+"] 잘못된 참조 할일 ID가 존재합니다.")
+							alert("등록에 실패하였습니다."
+								+ "\nmessage : ["+refTodoId+"] 잘못된 형태의 참조 할일 ID가 존재합니다.")
 							return false;
 						}
 					}
 				}
 				
 				var param = {
+					id:id,
 					content:content,
 					refTodoMapList: refTodoMapList
 				};
 
-				todoApi.register(param, function(message, response){
+				todoApi.modifyModal(param, function(message, response){
 					if (message != null) {
 						alert("등록에 실패하였습니다."
 							+ "\nmessage : " + message);
 						return false;
 					}
+					
 					todo.doFindAll();
-					
 					todo.resetTodoFormModalInputs();
-					
 					todo.closeTodoFormModal();
 				});
 			}
 		});
-
-//		$('#todoTable tbody').on( 'click', 'button', function () {
-//			var data = table.row( $(this).parents('tr') ).data();
-//			alert( data[0] +"'s salary is: "+ data[ 2 ] );
-//		} );
 	},
 	
+	//입력모달출력
+	doRegisterTodoFormModal : function(){
+		todo.todoFormModalMode = "R";
+		$('#lb_modal_reg').show();
+		$('#lb_modal_mod').hide();
+		
+		$('#h4_modal_reg').show();
+		$('#h4_modal_mod').hide();
+		
+		todo.showTodoFormModal();
+	},
+	
+	//수정모달출력
+	doModifyTodoFormModal : function(rownum){
+		todo.todoFormModalMode = "M";
+		$('#lb_modal_mod').show();
+		$('#lb_modal_reg').hide();
+		
+		$('#h4_modal_mod').show();
+		$('#h4_modal_reg').hide();
+		
+		todo.showTodoFormModal();
+		
+		
+		//rownum에 맞는 데이터를 table에서 가져와 모달창에 입력
+		var table = $('#todoTable').DataTable();
+		var row = table.rows(rownum).data()[0];
+		
+		$('#ipt_rownum').val(rownum);
+		$("#ipt_id").val(row.id);
+		$('#ipt_content').val(row.content);
+		$("#ipt_refTodoIds").val(row.refTodoIds);
+	},
+	
+	//모달창 입력사항 리셋
 	resetTodoFormModalInputs : function(){
-		$("#hdn_id").val("");
+		$("#ipt_id").val("");
+		$("#ipt_rownum").val("");
 		$("#ipt_content").val("");
-		$("#ipt_acTodoList").val("");
+		$("#ipt_refTodoIds").val("");
 	},
 	
+	//모달창 출력
+	showTodoFormModal : function(){
+		todo.resetTodoFormModalInputs();
+		$('#todoFormModal').modal('show');
+	},
+	
+	//모달창 닫기
 	closeTodoFormModal : function(){
-		$('#todoFormModal').modal('hide')
+		todo.resetTodoFormModalInputs();
+		$('#todoFormModal').modal('hide');
+	},
+	
+	//rest api - 완료 실행
+	doComplete : function(todoId){
+		todoApi.complete(todoId,
+			function (message, response) {
+				if (message != null) {
+					alert(message);
+					return false;
+				}
+				todo.doFindAll();
+			});
+	},
+	
+	//rest api - 완료 취소 실행
+	doCancel : function(todoId){
+		todoApi.cancel(todoId,
+			function (message, response) {
+				if (message != null) {
+					alert(message);
+					return false;
+				}
+				todo.doFindAll();
+			});
+	},
+	
+	
+	doFindAll : function(){
+		$('#todoTable').DataTable().ajax.reload(null, false);
 	},
 	
 	split : function( val ){

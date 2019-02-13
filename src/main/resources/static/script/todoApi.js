@@ -49,9 +49,9 @@ var todoApi = {
 		});
 	},
 	
-	modify : function(param, callback) {
+	modifyModal : function(param, callback) {
 		$.ajax({
-			url: todoApi.BASE_PREFIX,
+			url: todoApi.BASE_PREFIX+"modal/",
 			method: 'put',
 			data: JSON.stringify(param),
 			contentType: "application/json",

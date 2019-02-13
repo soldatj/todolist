@@ -28,24 +28,27 @@
 			<!-- Modal content-->
 			<div class="modal-content">
 				<div class="modal-header">
-					<h4 class="modal-title">할일 입력</h4>
+					<h4 id="h4_modal_reg" class="modal-title">할일 입력</h4>
+					<h4 id="h4_modal_mod" class="modal-title">할일 수정</h4>
 					<button type="button" class="close" data-dismiss="modal">×</button>
 				</div>
 				<div class="modal-body">
 			<div class="container">
 				<form id="todoForm">
 					<div class="bs-inputform">
-						<label for="content" class="sr-only">할일 입력</label>
+						<label for="content" id="lb_modal_reg" class="sr-only">할일 입력</label>
+						<label for="content" id="lb_modal_mod" class="sr-only">할일 수정</label>
 						<div class="row">
 							<div class="col-sm-10">
-								<input type="hidden" id="hdn_id">
+								<input type="hidden" id="ipt_id">
+								<input type="hidden" id="ipt_rownum">
 								<input type="text" id="ipt_content" class="form-control" placeholder="할일" required="true" autofocus=""/>
 							</div>
-							<button class="btn btn-success" type="submit">할일추가</button>
+							<button class="btn btn-success" type="submit">할일 전송</button>
 						</div>
 						<div class="row" style="margin-left:5px">
 							<div class="col-sm-10">
-								<input type="text" id="ipt_acTodoList" class="form-control" placeholder="참조" autofocus=""/>
+								<input type="text" id="ipt_refTodoIds" class="form-control" placeholder="참조" autofocus=""/>
 							</div>
 						</div>
 					</div>
@@ -73,7 +76,7 @@
 			<tbody>
 			</tbody>
 		</table>
-		<button type="button" data-toggle="modal" class="btn btn-success" data-target="#todoFormModal" style="float:right;margin-right:10px">새로입력</button>
+		<button type="button" class="btn btn-success" data-target="#todoFormModal" onclick="todo.doRegisterTodoFormModal()" style="float:right;margin-right:10px">새로입력</button>
 	</div>
 
 
