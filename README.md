@@ -66,7 +66,8 @@ http://localhost:8080/
 
 ---
 
-## Dependancies
+## Dependencies
+- Java8
 - spring-boot
 - starter-data-jpa
 - spring-boot-starter-jdbc
@@ -80,5 +81,38 @@ http://localhost:8080/
 - lombok
 - h2
 
+---
 
+## REST-API(http://localhost:8080/swagger)
+
+### 1. findAll : Todolist 조회
+~~~
+Method : GET 
+URL : /api/todo
+~~~
+### 2. register : Todo 입력
+~~~
+Method : POST
+URL : /api/todo
+~~~
+### 3. cancel : Todo 완료 취소
+~~~
+Method : PUT
+URL : /api/todo/cancel/{id}
+~~~
+### 4. complete : Todo 완료 취소
+~~~
+Method : PUT
+URL : /api/todo/complete/{id}
+~~~
+### 5. findByIdNotAndContentLike : autocomplete용 Todolist 조회
+~~~
+Method : GET
+URL : /api/todo/findByIdNotAndContentLike
+~~~
+### 6. modifyModal : 전달된 Todo의 일부를 수정(content, refTodoMapList)
+~~~
+Method : PUT
+URL : /api/todo/modal/
+~~~
 
