@@ -199,7 +199,8 @@ var todo = {
 						}
 						
 						if(!$.isNumeric(refTodoId)){
-							alert("["+refTodoId+"] 잘못된 참조 할일 ID가 존재합니다.")
+							alert("등록에 실패하였습니다."
+								+ "\nmessage : ["+refTodoId+"] 잘못된 형태의 참조 할일 ID가 존재합니다.")
 							return false;
 						}
 					}
@@ -213,13 +214,14 @@ var todo = {
 				todoApi.register(param, function(message, response){
 					if (message != null) {
 						alert("등록에 실패하였습니다."
-							+ "\nCODE : " + response.errorCode
 							+ "\nmessage : " + message);
 						return false;
 					}
 					todo.doFindAll();
 					
 					todo.resetTodoFormModalInputs();
+					
+					todo.closeTodoFormModal();
 				});
 			}else{
 				//업데이트
@@ -260,13 +262,14 @@ var todo = {
 				todoApi.register(param, function(message, response){
 					if (message != null) {
 						alert("등록에 실패하였습니다."
-							+ "\nCODE : " + response.errorCode
 							+ "\nmessage : " + message);
 						return false;
 					}
 					todo.doFindAll();
 					
 					todo.resetTodoFormModalInputs();
+					
+					todo.closeTodoFormModal();
 				});
 			}
 		});
@@ -281,6 +284,10 @@ var todo = {
 		$("#hdn_id").val("");
 		$("#ipt_content").val("");
 		$("#ipt_acTodoList").val("");
+	},
+	
+	closeTodoFormModal : function(){
+		$('#todoFormModal').modal('hide')
 	},
 	
 	split : function( val ){

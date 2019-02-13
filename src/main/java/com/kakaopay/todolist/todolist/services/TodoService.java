@@ -14,13 +14,11 @@ public interface TodoService {
 	
 	public Page<Todo> findAll(Pageable pageable);
 	
-	public List<Todo> findRefTodoListById(Long id);
-	
 	public Todo register(Todo todo);
 	
 	public Todo modify(Todo todo);
 
-	public Todo modifyComplete(Long id, String compYn);
+	public Todo modifyCompYn(Long id, String compYn);
 	
 	public void remove(Long id);
 }

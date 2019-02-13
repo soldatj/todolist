@@ -127,7 +127,7 @@ public class TodoServiceTest {
 		
 		refTodoMapService.registerSameTodoIdList(todo.getId(), refTodoList);
 		
-		List<RefTodoMap> resultSize2 = refTodoMapService.findAllByTodoId(todo.getId());
+		List<RefTodoMap> resultSize2 = refTodoMapService.findByTodoId(todo.getId());
 		
 		//then
 		assertThat(todo).isNotNull();
@@ -174,7 +174,7 @@ public class TodoServiceTest {
 		assertThat(todo).isNotNull();
 		assertThat(todo.getId()).isNotNull();
 		
-		List<RefTodoMap> resultSize1 = refTodoMapService.findAllByTodoId(todo.getId());
+		List<RefTodoMap> resultSize1 = refTodoMapService.findByTodoId(todo.getId());
 		assertThat(resultSize1.size()).isEqualTo(1);
 		
 		//RefTodo 목록 삭제 후 재입력
@@ -196,7 +196,7 @@ public class TodoServiceTest {
 		assertThat(todo).isNotNull();
 		assertThat(todo.getId()).isNotNull();
 		
-		List<RefTodoMap> resultRefTodosSize90 = refTodoMapService.findAllByTodoId(todo.getId());
+		List<RefTodoMap> resultRefTodosSize90 = refTodoMapService.findByTodoId(todo.getId());
 		assertThat(resultRefTodosSize90.size()).isEqualTo(90);
 	}
 }

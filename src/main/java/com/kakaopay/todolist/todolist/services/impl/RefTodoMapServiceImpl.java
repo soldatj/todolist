@@ -24,12 +24,16 @@ public class RefTodoMapServiceImpl implements RefTodoMapService {
 	private RefTodoMapRepository refTodoRepository;
 	
 	@Override
-	public List<RefTodoMap> findAllByTodoId(Long id) {
+	public List<RefTodoMap> findByTodoId(Long id) {
 		return refTodoRepository.findByTodoId(id);
 	}
 	
 	@Override
+	public List<RefTodoMap> findByRefTodoId(Long id) {
+		return refTodoRepository.findByRefTodoId(id);
+	}
 	
+	@Override
 	public List<RefTodoMap> registerSameTodoIdList(Long todoId, List<RefTodoMap> refTodoList){
 		List<RefTodoMap> returnList = new ArrayList<RefTodoMap>();
 		

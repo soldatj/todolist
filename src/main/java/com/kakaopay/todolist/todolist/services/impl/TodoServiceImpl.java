@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kakaopay.todolist.todolist.domain.RefTodoMap;
 import com.kakaopay.todolist.todolist.domain.Todo;
+import com.kakaopay.todolist.todolist.exception.ExistCompleteRefToMeTodoException;
 import com.kakaopay.todolist.todolist.exception.ExistNotCompleteRefTodoException;
 import com.kakaopay.todolist.todolist.exception.NotExistTodoException;
 import com.kakaopay.todolist.todolist.exception.NotExistTodoRefDataException;
@@ -94,31 +95,14 @@ public class TodoServiceImpl implements TodoService {
 	}
 
 	@Override
-	public List<Todo> findRefTodoListById(Long id) {
-		//참조 데이터 테이블을 조회
-		List<RefTodoMap> refDataList = refTodoMapService.findAllByTodoId(id);
-		
-		//참조 데이터 테이블 정보를 바탕으로 참조 Todo 리스트를 조회
-		List<Todo> refTodoList = new ArrayList<Todo>();
-		if(refDataList != null) {
-			for(RefTodoMap refTodo : refDataList) {
-				Long refTodoId = refTodo.getRefTodoId();
-				
-				Todo refDtlTodo =  todoRepository.findById(refTodoId).orElse(null);
-				refTodoList.add(refDtlTodo);
-			}
-		}
-		
-		return refTodoList;
-	}
-
-	@Override
-	public Todo modifyComplete(Long id, String compYn) {
+	public Todo modifyCompYn(Long id, String compYn) {
 		Todo todo =  todoRepository.findById(id).orElse(null);
 		
 		//완료 상태로 전환시에 참조 할일들이 완료상태인지 체크
 		if("Y".equals(compYn)) {
 			validNotExistsNotCompleteRefTodos(id);
+		}else if("N".equals(compYn)) {
+			validNotExistsNotCompleteRefToMeTodos(id);
 		}
 		
 		todo.setCompYn(compYn);
@@ -143,7 +127,7 @@ public class TodoServiceImpl implements TodoService {
 		
 		if(todo != null) {
 			//참조 데이터 테이블을 조회
-			List<RefTodoMap> refDataList = refTodoMapService.findAllByTodoId(id);
+			List<RefTodoMap> refDataList = refTodoMapService.findByTodoId(id);
 			
 			if(refDataList != null) {
 				//참조 데이터 테이블 정보를 바탕으로 참조 Todo 리스트를 조회
@@ -169,11 +153,10 @@ public class TodoServiceImpl implements TodoService {
 		return todo;
 	}
 	
+	//완료하기전에 자신이 참조하는 다른 할일이 완료되어있는지 확인
 	public void validNotExistsNotCompleteRefTodos(Long id) {
 		//참조 데이터 테이블을 조회
-		List<RefTodoMap> refDataList = refTodoMapService.findAllByTodoId(id);
-		
-		List<Todo> refTodoList = new ArrayList<Todo>();
+		List<RefTodoMap> refDataList = refTodoMapService.findByTodoId(id);
 		
 		if(refDataList != null) {
 			//참조 데이터 테이블 정보를 바탕으로 참조 Todo 리스트를 조회
@@ -181,11 +164,30 @@ public class TodoServiceImpl implements TodoService {
 				Long refTodoId = refTodo.getRefTodoId();
 				
 				Todo refDtlTodo =  todoRepository.findById(refTodoId).orElse(null);
-				refTodoList.add(refDtlTodo);
 				
 				//참조 데이터가 N 인 경우 Exception 발생
 				if("N".equals(refDtlTodo.getCompYn())) {
 					throw new ExistNotCompleteRefTodoException(refTodoId);
+				}
+			}
+		}
+	}
+	
+	//완료를 캔슬하기전에 자신을 참조하는 다른 할일이 완료 상태가 아닌지 확인
+	public void validNotExistsNotCompleteRefToMeTodos(Long id) {
+		//참조 데이터 테이블을 조회
+		List<RefTodoMap> refToMeDataList = refTodoMapService.findByRefTodoId(id);
+		
+		if(refToMeDataList != null) {
+			//참조 데이터 테이블 정보를 바탕으로 참조 Todo 리스트를 조회
+			for(RefTodoMap refTodo : refToMeDataList) {
+				Long refToMeTodoId = refTodo.getTodoId();
+				
+				Todo refDtlTodo =  todoRepository.findById(refToMeTodoId).orElse(null);
+				
+				//참조 데이터가 N 인 경우 Exception 발생
+				if("Y".equals(refDtlTodo.getCompYn())) {
+					throw new ExistCompleteRefToMeTodoException(refToMeTodoId);
 				}
 			}
 		}

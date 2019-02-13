@@ -12,23 +12,7 @@ var todoApi = {
 			callback(null, response);
 		}).catch(function(response){
 			var responseJSON = response.responseJSON;
-			var message = responseJSON.message;
-			callback(message, responseJSON);
-		});
-	},
-	
-	findAllRefTodo : function(param, callback) {
-		$.ajax({
-			url: todoApi.BASE_PREFIX + 'reftodo/find/',
-			method: 'get',
-			data: param,
-			contentType: "application/json",
-			dataType: 'json'
-		}).then(function(response){
-			callback(null, response);
-		}).catch(function(response){
-			var responseJSON = response.responseJSON;
-			var message = responseJSON.message;
+			var message = responseJSON.errorMessage;
 			callback(message, responseJSON);
 		});
 	},
@@ -44,7 +28,7 @@ var todoApi = {
 			callback(null, response);
 		}).catch(function(response){
 			var responseJSON = response.responseJSON;
-			var message = responseJSON.message;
+			var message = responseJSON.errorMessage;
 			callback(message, responseJSON);
 		});
 	},
@@ -60,7 +44,7 @@ var todoApi = {
 			callback(null, response);
 		}).catch(function(response){
 			var responseJSON = response.responseJSON;
-			var message = responseJSON.message;
+			var message = responseJSON.errorMessage;
 			callback(message, responseJSON);
 		});
 	},
@@ -76,7 +60,7 @@ var todoApi = {
 			callback(null, response);
 		}).catch(function(response){
 			var responseJSON = response.responseJSON;
-			var message = responseJSON.message;
+			var message = responseJSON.errorMessage;
 			callback(message, responseJSON);
 		});
 	},
@@ -91,7 +75,7 @@ var todoApi = {
 			callback(null, response);
 		}).catch(function(response){
 			var responseJSON = response.responseJSON;
-			var message = responseJSON.message;
+			var message = responseJSON.errorMessage;
 			callback(message, responseJSON);
 		});
 	},
@@ -106,7 +90,7 @@ var todoApi = {
 			callback(null, response);
 		}).catch(function(response){
 			var responseJSON = response.responseJSON;
-			var message = responseJSON.message;
+			var message = responseJSON.errorMessage;
 			callback(message, responseJSON);
 		});
 	},

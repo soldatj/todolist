@@ -20,7 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kakaopay.todolist.todolist.domain.Result;
 import com.kakaopay.todolist.todolist.domain.Todo;
-import com.kakaopay.todolist.todolist.services.RefTodoMapService;
+import com.kakaopay.todolist.todolist.exception.AlreadyExistsTodoException;
+import com.kakaopay.todolist.todolist.exception.NotExistTodoException;
 import com.kakaopay.todolist.todolist.services.TodoService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,12 +32,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TodoController {
 	private TodoService todoService;
-	private RefTodoMapService refTodoMapService;
 	
 	@Autowired
-	public TodoController(TodoService todoService, RefTodoMapService refTodoService) {
+	public TodoController(TodoService todoService) {
 		this.todoService = todoService;
-		this.refTodoMapService = refTodoService;
 	}
 	
 	@GetMapping("/find/{id}")
@@ -46,8 +45,7 @@ public class TodoController {
 		Result<Todo> result = new Result<>();
 		Todo todo = todoService.find(id);
 		if(todo == null) {
-			result.setErrorCode(HttpStatus.NOT_FOUND.value());
-			result.setErrorMessage("Not found");
+			throw new NotExistTodoException(id);
 		}else {
 			result.setResult(todo);
 		}
@@ -61,26 +59,7 @@ public class TodoController {
 		
 		Result<Page<Todo>> result = new Result<>();
 		Page<Todo> page = todoService.findAll(pageable);
-		if(page == null) {
-			result.setErrorCode(HttpStatus.NOT_FOUND.value());
-			result.setErrorMessage("Not found");
-		}else {
-			result.setResult(page);
-		}
-		
-		return result;
-	}
-	
-	@GetMapping("/reftodo/find/{id}")
-	public Result<List<Todo>> findRefTodoList(@PathVariable Long id) {
-		log.info("findAll");
-		
-		Result<List<Todo>> result = new Result<>();
-		List<Todo> page = todoService.findRefTodoListById(id);
-		if(page == null) {
-			result.setErrorCode(HttpStatus.NOT_FOUND.value());
-			result.setErrorMessage("Not found");
-		}else {
+		if(page != null) {
 			result.setResult(page);
 		}
 		
@@ -95,8 +74,7 @@ public class TodoController {
 		Todo returnTodo = todoService.register(todo);
 		
 		if(returnTodo == null) {
-			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
-			result.setErrorMessage("Already Exists");
+			throw new AlreadyExistsTodoException();
 		}else {
 			result.setResult(returnTodo.getId());
 		}
@@ -112,8 +90,7 @@ public class TodoController {
 		Todo returnTodo = todoService.modify(todo);
 		
 		if(returnTodo == null) {
-			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
-			result.setErrorMessage("Not Found");
+			throw new NotExistTodoException(todo.getId());
 		}else {
 			result.setResult(returnTodo.getId());
 		}
@@ -126,11 +103,10 @@ public class TodoController {
 		log.info("complate : " + id);
 		
 		Result<Long> result = new Result<Long>();
-		Todo returnTodo = todoService.modifyComplete(id, "Y");
+		Todo returnTodo = todoService.modifyCompYn(id, "Y");
 		
 		if(returnTodo == null) {
-			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
-			result.setErrorMessage("Not Found");
+			throw new NotExistTodoException(id);
 		}else {
 			result.setResult(returnTodo.getId());
 		}
@@ -143,11 +119,10 @@ public class TodoController {
 		log.info("cancel : " + id);
 		
 		Result<Long> result = new Result<Long>();
-		Todo returnTodo = todoService.modifyComplete(id, "N");
+		Todo returnTodo = todoService.modifyCompYn(id, "N");
 		
 		if(returnTodo == null) {
-			result.setErrorCode(HttpStatus.BAD_REQUEST.value());
-			result.setErrorMessage("Not Found");
+			throw new NotExistTodoException(id);
 		}else {
 			result.setResult(returnTodo.getId());
 		}
@@ -162,12 +137,7 @@ public class TodoController {
 		
 		Result<List<Todo>> result = new Result<>();
 		List<Todo> todoList = todoService.findByIdNotAndContentLike(id, content);
-		if(todoList == null || todoList.isEmpty()) {
-			result.setErrorCode(HttpStatus.NOT_FOUND.value());
-			result.setErrorMessage("Not found");
-		}else {
-			result.setResult(todoList);
-		}
+		result.setResult(todoList);
 		
 		return result;
 	}

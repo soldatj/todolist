@@ -12,6 +12,8 @@ import com.kakaopay.todolist.todolist.domain.RefTodoMapPk;
 public interface RefTodoMapRepository extends CrudRepository<RefTodoMap, RefTodoMapPk>{
 	List<RefTodoMap> findByTodoId(@Param("todoId") Long todoId);
 	
+	List<RefTodoMap> findByRefTodoId(@Param("refTodoId") Long refTodoId);
+	
 	@Transactional
 	void removeByTodoId(@Param("todoId") Long todoId);
 }

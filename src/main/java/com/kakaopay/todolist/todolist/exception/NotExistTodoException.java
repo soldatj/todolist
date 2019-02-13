@@ -9,14 +9,13 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class NotExistTodoException extends RuntimeException {
-	private static final long serialVersionUID = -3043729264605321970L;
-	
-	private HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-    private String message = "존재하지 않는 할일입니다.";
+	private static final long serialVersionUID = 3081882788643804838L;
+	private HttpStatus httpStatus = HttpStatus.NOT_FOUND;
+    private String message = "할일이 존재하지 않습니다.";
     
     public NotExistTodoException(Long todoId) {
     	this.message = new StringBuffer()
-    			.append("[").append(todoId).append("]")
+    			.append("[").append(todoId).append("] ")
     			.append(this.message)
     			.toString();
     }
