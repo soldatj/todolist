@@ -3,8 +3,8 @@
 ## 과제
 
 할일 목록(todo-list) 웹 어플리케이션 구현
-[녹화영상](https://www.useloom.com/share/1006501cac96494184eb05dfdb50b459 "녹화영상")
-  * 현재 녹화툴 문제로 alert 창이 녹화가 안되어있는 상태. 입력값등에 문제가 있는 경우 alert 창이 출력됨.
+[녹화영상](https://www.useloom.com/share/ce749126190b4ab59d463c79df7fc1a4 "녹화영상")
+<!--녹화영상 수정-->
 
 ---
 
