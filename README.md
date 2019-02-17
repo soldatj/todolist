@@ -3,6 +3,8 @@
 ## 과제
 
 할일 목록(todo-list) 웹 어플리케이션 구현
+[녹화영상](https://www.useloom.com/share/ce749126190b4ab59d463c79df7fc1a4 "녹화영상")
+<!--녹화영상 수정-->
 
 ---
 
