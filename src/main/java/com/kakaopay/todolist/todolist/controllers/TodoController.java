@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kakaopay.todolist.todolist.domain.Result;
 import com.kakaopay.todolist.todolist.domain.Todo;
-import com.kakaopay.todolist.todolist.exception.AlreadyExistsTodoException;
-import com.kakaopay.todolist.todolist.exception.NotExistTodoException;
 import com.kakaopay.todolist.todolist.services.TodoService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -41,13 +39,10 @@ public class TodoController {
 	public Result<Todo> find(@PathVariable Long id) {
 		log.info("find : " + id);
 		
-		Result<Todo> result = new Result<>();
+		Result<Todo> result = new Result<Todo>();
 		Todo todo = todoService.find(id);
-		if(todo == null) {
-			throw new NotExistTodoException(id);
-		}else {
-			result.setResult(todo);
-		}
+		
+		result.setResult(todo);
 		
 		return result;
 	}
@@ -58,9 +53,7 @@ public class TodoController {
 		
 		Result<Page<Todo>> result = new Result<>();
 		Page<Todo> page = todoService.findAll(pageable);
-		if(page != null) {
-			result.setResult(page);
-		}
+		result.setResult(page);
 		
 		return result;
 	}
@@ -72,11 +65,7 @@ public class TodoController {
 		Result<Long> result = new Result<Long>();
 		Todo returnTodo = todoService.register(todo);
 		
-		if(returnTodo == null) {
-			throw new AlreadyExistsTodoException();
-		}else {
-			result.setResult(returnTodo.getId());
-		}
+		result.setResult(returnTodo.getId());
 		
 		return result;
 	}
@@ -89,11 +78,7 @@ public class TodoController {
 		Result<Long> result = new Result<Long>();
 		Todo returnTodo = todoService.modifyModal(todo);
 		
-		if(returnTodo == null) {
-			throw new NotExistTodoException(todo.getId());
-		}else {
-			result.setResult(returnTodo.getId());
-		}
+		result.setResult(returnTodo.getId());
 		
 		return result;
 	}
@@ -105,12 +90,7 @@ public class TodoController {
 		
 		Result<Long> result = new Result<Long>();
 		Todo returnTodo = todoService.modifyCompYn(id, "Y");
-		
-		if(returnTodo == null) {
-			throw new NotExistTodoException(id);
-		}else {
-			result.setResult(returnTodo.getId());
-		}
+		result.setResult(returnTodo.getId());
 		
 		return result;
 	}
@@ -122,12 +102,7 @@ public class TodoController {
 		
 		Result<Long> result = new Result<Long>();
 		Todo returnTodo = todoService.modifyCompYn(id, "N");
-		
-		if(returnTodo == null) {
-			throw new NotExistTodoException(id);
-		}else {
-			result.setResult(returnTodo.getId());
-		}
+		result.setResult(returnTodo.getId());
 		
 		return result;
 	}

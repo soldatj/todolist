@@ -42,7 +42,7 @@ public class TodoControllerTest {
 		
 		ResponseEntity<Result> findResponse = restTemplate.getForEntity("/api/todo/find/"+todoId, Result.class);
 		assertThat(registerResponse).isNotNull();
-		Map todo = (Map) findResponse.getBody().getResult();
+		Map<String, String> todo = (Map<String, String>) findResponse.getBody().getResult();
 		
 		assertThat(String.valueOf(todo.get("id"))).isEqualTo(String.valueOf(todoId));
 		assertThat(String.valueOf(todo.get("content"))).isEqualTo(content);
@@ -66,7 +66,7 @@ public class TodoControllerTest {
 		
 		ResponseEntity<Result> findResponse = restTemplate.getForEntity("/api/todo/find/"+todoId, Result.class);
 		assertThat(findResponse).isNotNull();
-		Map todo = (Map) findResponse.getBody().getResult();
+		Map<String, String> todo = (Map<String, String>) findResponse.getBody().getResult();
 		
 		//put을 통해 값을 수정
 		String newContent = "영화 보기";
@@ -76,7 +76,7 @@ public class TodoControllerTest {
 		
 		ResponseEntity<Result> findResponse2 = restTemplate.getForEntity("/api/todo/find/"+todoId, Result.class);
 		assertThat(findResponse2).isNotNull();
-		Map todo2 = (Map) findResponse2.getBody().getResult();
+		Map<String, String> todo2 = (Map<String, String>) findResponse2.getBody().getResult();
 		
 		assertThat(String.valueOf(todo2.get("id"))).isEqualTo(String.valueOf(todoId));
 		assertThat(String.valueOf(todo2.get("content"))).isEqualTo(newContent);
@@ -103,7 +103,7 @@ public class TodoControllerTest {
 		
 		ResponseEntity<Result> findResponse2 = restTemplate.getForEntity("/api/todo/find/"+todoId, Result.class);
 		assertThat(findResponse2).isNotNull();
-		Map todo2 = (Map) findResponse2.getBody().getResult();
+		Map<String, String> todo2 = (Map<String, String>) findResponse2.getBody().getResult();
 		
 		assertThat(String.valueOf(todo2.get("id"))).isEqualTo(String.valueOf(todoId));
 		assertThat(String.valueOf(todo2.get("compYn"))).isEqualTo("Y");
@@ -114,7 +114,7 @@ public class TodoControllerTest {
 		
 		ResponseEntity<Result> findResponse3 = restTemplate.getForEntity("/api/todo/find/"+todoId, Result.class);
 		assertThat(findResponse3).isNotNull();
-		Map todo3 = (Map) findResponse3.getBody().getResult();
+		Map<String, String> todo3 = (Map<String, String>) findResponse3.getBody().getResult();
 		
 		assertThat(String.valueOf(todo3.get("id"))).isEqualTo(String.valueOf(todoId));
 		assertThat(String.valueOf(todo3.get("compYn"))).isEqualTo("N");

@@ -1,6 +1,5 @@
 package com.kakaopay.todolist.todolist.services.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kakaopay.todolist.todolist.domain.RefTodoMap;
 import com.kakaopay.todolist.todolist.domain.Todo;
+import com.kakaopay.todolist.todolist.exception.AlreadyExistsTodoException;
 import com.kakaopay.todolist.todolist.exception.ExistCompleteRefToMeTodoException;
 import com.kakaopay.todolist.todolist.exception.ExistNotCompleteRefTodoException;
 import com.kakaopay.todolist.todolist.exception.NotExistTodoException;
@@ -63,13 +63,12 @@ public class TodoServiceImpl implements TodoService {
 	public Todo register(Todo todo) {
 		Todo returnTodo = todoRepository.save(todo);
 		
-		if(returnTodo != null) {
-			List<RefTodoMap> refTodoList = todo.getRefTodoMapList();
-			
-			if(refTodoList!=null && !refTodoList.isEmpty()) {
-				refTodoMapService.registerSameTodoIdList(returnTodo.getId(), refTodoList);
-			}
+		if(returnTodo == null) {
+			throw new AlreadyExistsTodoException();
 		}
+		
+		List<RefTodoMap> refTodoList = todo.getRefTodoMapList();
+		refTodoMapService.registerSameTodoIdList(returnTodo.getId(), refTodoList);
 		
 		return returnTodo;
 	}
@@ -78,13 +77,12 @@ public class TodoServiceImpl implements TodoService {
 	public Todo modify(Todo todo) {
 		Todo returnTodo = todoRepository.save(todo);
 		
-		if(returnTodo != null) {
-			List<RefTodoMap> refTodoList = todo.getRefTodoMapList();
-			
-			if(refTodoList!=null && !refTodoList.isEmpty()) {
-				refTodoMapService.registerSameTodoIdList(returnTodo.getId(), refTodoList);
-			}
+		if(returnTodo == null) {
+			throw new NotExistTodoException(todo.getId());
 		}
+		
+		List<RefTodoMap> refTodoList = todo.getRefTodoMapList();
+		refTodoMapService.registerSameTodoIdList(returnTodo.getId(), refTodoList);
 		
 		return returnTodo;
 	}
@@ -92,30 +90,40 @@ public class TodoServiceImpl implements TodoService {
 	@Override
 	public Todo modifyModal(Todo todo) {
 		Todo findTodo = find(todo.getId());
+		
+		if(findTodo == null) {
+			throw new NotExistTodoException(todo.getId());
+		}
+		
 		findTodo.setContent(todo.getContent());
 		findTodo.setRefTodoMapList(todo.getRefTodoMapList());
 		
 		Todo returnTodo = todoRepository.save(findTodo);
 		
-		if(returnTodo != null) {
-			List<RefTodoMap> refTodoList = findTodo.getRefTodoMapList();
-			
-			if(refTodoList!=null && !refTodoList.isEmpty()) {
-				refTodoMapService.registerSameTodoIdList(returnTodo.getId(), refTodoList);
-			}
-		}
+		List<RefTodoMap> refTodoList = findTodo.getRefTodoMapList();
+		refTodoMapService.registerSameTodoIdList(returnTodo.getId(), refTodoList);
 		
 		return returnTodo;
 	}
 
 	@Override
 	public void remove(Long id) {
+		Todo findTodo = find(id);
+		
+		if(findTodo == null) {
+			throw new NotExistTodoException(id);
+		}
+		
 		todoRepository.deleteById(id);
 	}
 
 	@Override
 	public Todo modifyCompYn(Long id, String compYn) {
 		Todo todo =  todoRepository.findById(id).orElse(null);
+		
+		if(todo == null) {
+			throw new NotExistTodoException(id);
+		}
 		
 		//완료 상태로 전환시에 참조 할일들이 완료상태인지 체크
 		if("Y".equals(compYn)) {
@@ -144,28 +152,26 @@ public class TodoServiceImpl implements TodoService {
 		//"1, 3"과 같이 RefTodo의 id를 기록하기 위한 SB
 		StringBuffer sbRefTodoIds = new StringBuffer();
 		
-		if(todo != null) {
-			//참조 데이터 테이블을 조회
-			List<RefTodoMap> refDataList = refTodoMapService.findByTodoId(id);
-			
-			if(refDataList != null) {
-				//참조 데이터 테이블 정보를 바탕으로 참조 Todo 리스트를 조회
-				for(RefTodoMap refTodo : refDataList) {
-					Long refTodoId = refTodo.getRefTodoId();
-					
-					Todo refDtlTodo = todoRepository.findById(refTodoId).orElse(null);
-					
-					if(refTodoId == null || refDtlTodo == null) {
-						throw new NotExistTodoRefDataException(refTodoId);
-					}
-					
-					sbContentAndRefTodoIds.append(" ").append("@").append(refDtlTodo.getId());
-					sbRefTodoIds.append(refDtlTodo.getId()).append(",");
+		//참조 데이터 테이블을 조회
+		List<RefTodoMap> refDataList = refTodoMapService.findByTodoId(id);
+		
+		if(refDataList != null) {
+			//참조 데이터 테이블 정보를 바탕으로 참조 Todo 리스트를 조회
+			for(RefTodoMap refTodo : refDataList) {
+				Long refTodoId = refTodo.getRefTodoId();
+				
+				Todo refDtlTodo = todoRepository.findById(refTodoId).orElse(null);
+				
+				if(refDtlTodo == null) {
+					throw new NotExistTodoRefDataException(refTodoId);
 				}
+				
+				sbContentAndRefTodoIds.append(" ").append("@").append(refDtlTodo.getId());
+				sbRefTodoIds.append(refDtlTodo.getId()).append(",");
 			}
-			
-			todo.setRefTodoMapList(refDataList);
 		}
+		
+		todo.setRefTodoMapList(refDataList);
 		todo.setContentAndRefTodoIds(sbContentAndRefTodoIds.toString());
 		todo.setRefTodoIds(sbRefTodoIds.toString());
 		

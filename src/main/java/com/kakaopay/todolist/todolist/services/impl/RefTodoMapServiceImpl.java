@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kakaopay.todolist.todolist.domain.RefTodoMap;
 import com.kakaopay.todolist.todolist.domain.Todo;
+import com.kakaopay.todolist.todolist.exception.CrossReferenceException;
 import com.kakaopay.todolist.todolist.exception.NotExistTodoRefDataException;
 import com.kakaopay.todolist.todolist.repository.RefTodoMapRepository;
 import com.kakaopay.todolist.todolist.services.RefTodoMapService;
@@ -37,26 +38,34 @@ public class RefTodoMapServiceImpl implements RefTodoMapService {
 	public List<RefTodoMap> registerSameTodoIdList(Long todoId, List<RefTodoMap> refTodoList){
 		List<RefTodoMap> returnList = new ArrayList<RefTodoMap>();
 		
-		//삭제 후 재입력
 		removeByTodoId(todoId);
 		
-		if(refTodoList!=null && !refTodoList.isEmpty()) {
+		if(refTodoList == null) {
+			return returnList;
+		}
+		
+		for(RefTodoMap refData : refTodoList) {
+			Long refTodoId = refData.getRefTodoId();
 			
-			for(RefTodoMap refData : refTodoList) {
-				Long refTodoId = refData.getRefTodoId();
-				
-				Todo refTodo = todoService.find(refData.getRefTodoId());
-				
-				//존재하지않는 Todo 데이터가 입력되는 경우 처리
-				if(refTodoId == null || refTodo == null) {
-					throw new NotExistTodoRefDataException(refTodoId);
-				}
-				
-				refData.setTodoId(todoId);
-				
-				RefTodoMap returnRefTodo = refTodoRepository.save(refData);
-				returnList.add(returnRefTodo);
+			Todo refTodo = todoService.find(refData.getRefTodoId());
+			
+			//존재하지 않는 Todo 데이터가 입력되는 경우 예외발생
+			if(refTodoId == null || refTodo == null) {
+				throw new NotExistTodoRefDataException(refTodoId);
 			}
+			
+			//참조 할일 대상이 참조하는 대상을 찾아 파라미터 todoId가 포함되어있는지 count를 기록 
+			long refCnt = findByTodoId(refTodoId).stream().filter(rtm->rtm.getRefTodoId().equals(todoId)).count();
+			
+			//할일간 상호참조가 발생되면 예외발생
+			if(refCnt > 0) {
+				throw new CrossReferenceException(todoId, refTodoId);
+			}
+			
+			refData.setTodoId(todoId);
+			
+			RefTodoMap returnRefTodo = refTodoRepository.save(refData);
+			returnList.add(returnRefTodo);
 		}
 		
 		return returnList;
