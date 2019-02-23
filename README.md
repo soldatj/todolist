@@ -10,20 +10,25 @@
 
 ## 프로젝트 빌드, 실행 방법
 
-### 1. 빌드 및 시작 
-~~~
+### 1. 빌드 및 시작
+
+```sh
 gradle build && java -jar build/libs/todolist-0.0.1.jar
 
 ※gradle, Lombok plugin 설치 상태에 주의
-~~~
+```
+
 ### 2. Swagger
-~~~ 
+
+```http
 http://localhost:8080/swagger
-~~~
+```
+
 ### 3. Root Page
-~~~
+
+```http
 http://localhost:8080/
-~~~
+```
 
 ---
 
@@ -47,10 +52,10 @@ http://localhost:8080/
 
 * 사용자는 '새로입력' 버튼을 클릭해 모달창을 열고 사용자의 할일 컨텐츠와 참조할 일을 입력한다. 
   
-  #### 1.1. 참조 번호 입력
+#### 1.1. 참조 번호 입력
 
-  * 참조 번호는 자동완성 입력창을 이용해 사용자가 입력하는 사항을 받아들이고 선택사항에 대하여 쉼표로 구분하여 추가한다. 
-  * 존재하지 않는 id를 입력한 경우 서버에서 id로 검색되지 않는 할일이 존재하는 경우 NotExistTodoException을 발생시키고 사용자에게 통보한다.
+* 참조 번호는 자동완성 입력창을 이용해 사용자가 입력하는 사항을 받아들이고 선택사항에 대하여 쉼표로 구분하여 추가한다. 
+* 존재하지 않는 id를 입력한 경우 서버에서 id로 검색되지 않는 할일이 존재하는 경우 NotExistTodoException을 발생시키고 사용자에게 통보한다.
 
 ### 2. 할일 수정
 
@@ -71,62 +76,76 @@ http://localhost:8080/
 ---
 
 ## Dependencies
-- Java8
-- spring-boot
-- starter-data-jpa
-- spring-boot-starter-jdbc
-- spring-boot-starter-thymeleaf
-- spring-boot-starter-web
-- swagger2
-- swagger-ui
-- jquery
-- jquery-ui
-- bootstrap
-- lombok
-- h2
+
+* Java8
+* spring-boot
+* starter-data-jpa
+* spring-boot-starter-jdbc
+* spring-boot-starter-thymeleaf
+* spring-boot-starter-web
+* swagger2
+* swagger-ui
+* jquery
+* jquery-ui
+* bootstrap
+* lombok
+* h2
 
 ---
 
 ## REST-API (http://localhost:8080/swagger)
 
 ### 1. find : Todo 조회
-~~~
+
+```txt
 Method : GET 
 URL : /api/todo/find/{id}
-~~~
+```
+
 ### 2. findAll : Todolist 조회
-~~~
+
+```txt
 Method : GET 
 URL : /api/todo
-~~~
+```
+
 ### 3. register : Todo 입력
-~~~
+
+```txt
 Method : POST
 URL : /api/todo
-~~~
+```
+
 ### 4. cancel : Todo 완료 취소
-~~~
+
+```txt
 Method : PUT
 URL : /api/todo/cancel/{id}
-~~~
+```
+
 ### 5. complete : Todo 완료
-~~~
+
+```txt
 Method : PUT
 URL : /api/todo/complete/{id}
-~~~
+```
+
 ### 6. findByIdNotAndContentLike : autocomplete용 Todolist 조회
-~~~
+
+```txt
 Method : GET
 URL : /api/todo/findByIdNotAndContentLike
-~~~
+```
+
 ### 7. modifyModal : 전달된 Todo의 일부를 수정(content, refTodoMapList)
-~~~
+
+```txt
 Method : PUT
 URL : /api/todo/modal/
-~~~
+```
 
 ---
 
 ## 개선 필요 사항
 
-- [ ] 쌍방간 참조시 경고나 차단하는 기능 추가
+* [ ] 쌍방간 참조시 경고나 차단하는 기능 추가
