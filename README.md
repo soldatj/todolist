@@ -124,9 +124,3 @@ URL : /api/todo/findByIdNotAndContentLike
 Method : PUT
 URL : /api/todo/modal/
 ~~~
-
----
-
-## 개선 필요 사항
-
-- [ ] 쌍방간 참조시 경고나 차단하는 기능 추가
