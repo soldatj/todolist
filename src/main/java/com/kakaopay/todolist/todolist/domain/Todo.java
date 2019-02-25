@@ -65,10 +65,6 @@ public class Todo {
 	@ApiModelProperty(hidden= true)
 	private String refTodoIds;
 	
-//	@Transient 
-//	@ApiModelProperty(hidden= true)
-//	private List<Todo> refTodoList;
-	
 	@Transient 
 	@ApiModelProperty(hidden= true)
 	private List<RefTodoMap> refTodoMapList;

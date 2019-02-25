@@ -50,7 +50,8 @@ public class RefTodoMapServiceImpl implements RefTodoMapService {
 			Todo refTodo = todoService.find(refData.getRefTodoId());
 			
 			//존재하지 않는 Todo 데이터가 입력되는 경우 예외발생
-			if(refTodoId == null || refTodo == null) {
+			//todoId와 refTodoId가 동일한 경우에도 같은 예외 발행(즉 입력되기전의 할일을 입력한 경우)
+			if(refTodoId == null || refTodo == null || todoId.equals(refTodoId)) {
 				throw new NotExistTodoRefDataException(refTodoId);
 			}
 			

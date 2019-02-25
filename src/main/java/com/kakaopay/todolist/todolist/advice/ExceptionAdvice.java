@@ -27,13 +27,6 @@ public class ExceptionAdvice {
         return new Result<Object>(ex.getHttpStatus().value(), ex.getMessage());
     }
 	
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(CrossReferenceException.class)
-    @ResponseBody
-    public Result<?> handleCrossReferenceException(HttpServletRequest req, CrossReferenceException ex) {
-        return new Result<Object>(ex.getHttpStatus().value(), ex.getMessage());
-    }
-	
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotExistTodoException.class)
     @ResponseBody
@@ -69,7 +62,10 @@ public class ExceptionAdvice {
         return new Result<Object>(ex.getHttpStatus().value(), ex.getMessage());
     }
     
-    
-    
-
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(CrossReferenceException.class)
+    @ResponseBody
+    public Result<?> handleCrossReferenceException(HttpServletRequest req, CrossReferenceException ex) {
+        return new Result<Object>(ex.getHttpStatus().value(), ex.getMessage());
+    }
 }

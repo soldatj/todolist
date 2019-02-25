@@ -133,11 +133,8 @@ public class TodoServiceImpl implements TodoService {
 		}
 		
 		todo.setCompYn(compYn);
-		Todo result = modify(todo);
 		
-		if(result == null) {
-			return null;
-		}
+		Todo result = modify(todo);
 		
 		return result;
 	}
@@ -145,11 +142,11 @@ public class TodoServiceImpl implements TodoService {
 	public Todo setTodoRefTodoIds(Todo todo) {
 		Long id = todo.getId();
 		
-		//content의 뒤쪽으로 "방청소 @1 @3" 형태와 같이 RefTodo의 id를 기록하기 위한 SB
+		//목록화면에서 "방청소 @1 @3" 형태와 같이 Content와 함께 RefTodo의 id를 출력하기 위한 SB
 		StringBuffer sbContentAndRefTodoIds = new StringBuffer();
 		sbContentAndRefTodoIds.append(todo.getContent());
 		
-		//"1, 3"과 같이 RefTodo의 id를 기록하기 위한 SB
+		//수정 모달에서 "1, 3"과 같이 RefTodo의 id를 출력하기 위한 SB
 		StringBuffer sbRefTodoIds = new StringBuffer();
 		
 		//참조 데이터 테이블을 조회
@@ -166,7 +163,7 @@ public class TodoServiceImpl implements TodoService {
 					throw new NotExistTodoRefDataException(refTodoId);
 				}
 				
-				sbContentAndRefTodoIds.append(" ").append("@").append(refDtlTodo.getId());
+				sbContentAndRefTodoIds.append(" @").append(refTodoId);
 				sbRefTodoIds.append(refDtlTodo.getId()).append(",");
 			}
 		}
