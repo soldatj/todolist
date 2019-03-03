@@ -16,7 +16,7 @@ import com.kakaopay.todolist.todolist.services.RefTodoMapService;
 import com.kakaopay.todolist.todolist.services.TodoService;
 
 @Service
-@Transactional
+
 public class RefTodoMapServiceImpl implements RefTodoMapService {
 	@Autowired
 	private TodoService todoService;
@@ -34,6 +34,8 @@ public class RefTodoMapServiceImpl implements RefTodoMapService {
 		return refTodoRepository.findByRefTodoId(id);
 	}
 	
+	
+	@Transactional
 	@Override
 	public List<RefTodoMap> registerSameTodoIdList(Long todoId, List<RefTodoMap> refTodoList){
 		List<RefTodoMap> returnList = new ArrayList<RefTodoMap>();

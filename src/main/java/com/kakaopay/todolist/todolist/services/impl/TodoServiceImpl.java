@@ -20,7 +20,6 @@ import com.kakaopay.todolist.todolist.services.RefTodoMapService;
 import com.kakaopay.todolist.todolist.services.TodoService;
 
 @Service
-@Transactional
 public class TodoServiceImpl implements TodoService {
 	@Autowired
 	private RefTodoMapService refTodoMapService;
@@ -59,6 +58,7 @@ public class TodoServiceImpl implements TodoService {
 		return page;
 	}
 
+	@Transactional
 	@Override
 	public Todo register(Todo todo) {
 		Todo returnTodo = todoRepository.save(todo);
@@ -73,6 +73,7 @@ public class TodoServiceImpl implements TodoService {
 		return returnTodo;
 	}
 
+	@Transactional
 	@Override
 	public Todo modify(Todo todo) {
 		Todo returnTodo = todoRepository.save(todo);
@@ -87,6 +88,7 @@ public class TodoServiceImpl implements TodoService {
 		return returnTodo;
 	}
 	
+	@Transactional
 	@Override
 	public Todo modifyModal(Todo todo) {
 		Todo findTodo = find(todo.getId());
@@ -105,7 +107,8 @@ public class TodoServiceImpl implements TodoService {
 		
 		return returnTodo;
 	}
-
+	
+	@Transactional
 	@Override
 	public void remove(Long id) {
 		Todo findTodo = find(id);
@@ -117,6 +120,7 @@ public class TodoServiceImpl implements TodoService {
 		todoRepository.deleteById(id);
 	}
 
+	@Transactional
 	@Override
 	public Todo modifyCompYn(Long id, String compYn) {
 		Todo todo =  todoRepository.findById(id).orElse(null);
@@ -134,11 +138,12 @@ public class TodoServiceImpl implements TodoService {
 		
 		todo.setCompYn(compYn);
 		
-		Todo result = modify(todo);
+		Todo result = todoRepository.save(todo);
 		
 		return result;
 	}
 	
+	@Transactional
 	public Todo setTodoRefTodoIds(Todo todo) {
 		Long id = todo.getId();
 		
@@ -176,6 +181,7 @@ public class TodoServiceImpl implements TodoService {
 	}
 	
 	//완료하기전에 자신이 참조하는 다른 할일이 완료되어있는지 확인
+	@Transactional
 	public void validNotExistsNotCompleteRefTodos(Long id) {
 		//참조 데이터 테이블을 조회
 		List<RefTodoMap> refDataList = refTodoMapService.findByTodoId(id);
@@ -196,6 +202,7 @@ public class TodoServiceImpl implements TodoService {
 	}
 	
 	//완료를 캔슬하기전에 자신을 참조하는 다른 할일이 완료 상태가 아닌지 확인
+	@Transactional
 	public void validNotExistsNotCompleteRefToMeTodos(Long id) {
 		//참조 데이터 테이블을 조회
 		List<RefTodoMap> refToMeDataList = refTodoMapService.findByRefTodoId(id);
